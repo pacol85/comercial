@@ -1,0 +1,35 @@
+@CHARSET "ISO-8859-1";
+span.fa-comment {
+  position: absolute;
+  font-size: 1.2em;
+  top: -4px;
+  color: #ff4d4d;
+  right: -4px;
+}
+span.num {
+  position: absolute;
+  font-size: 0.6em;
+  top: -1.5px;
+  color: #fff;
+  right: 2px;
+}
+
+i.fa-newspaper-o {
+  position: relative;
+  font-size: 1.5em;
+  color: darkgray;
+}
+
+.binFull{
+	background-image: url(http://simpleicon.com/wp-content/uploads/inbox-mail-full-3-64x64.png);
+}
+
+.binClear{
+	background-image: url(http://simpleicon.com/wp-content/uploads/inbox-mail-empty-3-64x64.png);
+}
+
+div.topNot{
+	position: absolute;
+	top: 2px;
+	right: 60%;	
+}
