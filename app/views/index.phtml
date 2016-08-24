@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <title>Sistema Comercial El Angel</title>
+        <base href="/comercial/">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/reset.css">
+        <link rel='stylesheet prefetch' href='http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css'>
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+        <link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
+        <link rel="stylesheet" type="text/css" href="css/w3.css">
+        <link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
+        <link rel="stylesheet" type="text/css" href="css/classic.css">
+        <link rel="stylesheet" type="text/css" href="css/classic.date.css">
+        <link rel="stylesheet" type="text/css" href="css/otros.css">
+        
+        <!-- Favicon -->
+        <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="images/favicon.ico" type="image/x-icon">
+
+        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        <script type="text/javascript" language="javascript" src="js/dropdown.js"></script>
+        <!-- DataTables -->
+        <script type="text/javascript" language="javascript" src="js/jquery.dataTables.js"></script>
+        <!-- jQuery Mask -->
+        <script type="text/javascript" language="javascript" src="js/jquery.mask.min.js"></script>
+        <!-- jQuery DatePicker -->
+        <script type="text/javascript" language="javascript" src="js/picker.js"></script>
+        <script type="text/javascript" language="javascript" src="js/picker.date.js"></script>
+        <script type="text/javascript" language="javascript" src="js/es_ES.js"></script>
+        <!-- Fontawesome -->
+        <script src="https://use.fontawesome.com/b88a17f1bf.js"></script>
+        <!-- ReactJS -->
+        <script src="https://npmcdn.com/react@15.3.0/dist/react.min.js"></script>
+		<script src="https://npmcdn.com/react-dom@15.3.0/dist/react-dom.min.js"></script>
+        <script src="https://npmcdn.com/babel-core@5.8.38/browser.min.js"></script>
+        <script type="text/javascript" src="js/moment.min.js"></script>
+        <script type="text/javascript">
+			$(document).ready(function() {
+				$('.date').mask('0000-00-00');
+				$('.datepicker').pickadate();
+				$('.money').mask("#,##0.00", {reverse: true});
+				$('.email').mask("A", {
+					translation: {
+						"A": { pattern: /[\w@\-.+]/, recursive: true }
+					}
+				});
+			});
+		</script>        
+    </head>
+    <body>
+        <div class="container">
+            <?php echo $this->getContent();?>
+        </div>        
+    </body>
+</html>
