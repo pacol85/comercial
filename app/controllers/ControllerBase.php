@@ -224,6 +224,7 @@ class ControllerBase extends Controller {
 		}
 		return $elem;
 	}
+	
 	public function form($campos, $action, $id = "id") {
 		$form = $this->tag->form ( array (
 				$action,
@@ -242,6 +243,31 @@ class ControllerBase extends Controller {
 		$form = $form . $this->tag->endForm ();
 		return $form;
 	}
+	
+	/*
+	 * 'enctype' => 'multipart/form-data'
+	 */
+	public function multiForm($campos, $action, $id = "id"){
+		$form = $this->tag->form(
+				array(
+						$action,
+						"autocomplete" => "off",
+						"class" => "form-horizontal",
+						'enctype' => 'multipart/form-data',
+						"id" => "$id"
+				)
+		);
+		foreach ($campos as $c){
+			if(count($c) > 3){
+				$elem = ControllerBase::elemento($c[0], $c[1], $c[2], $c[3]);
+			}else $elem = ControllerBase::elemento($c[0], $c[1], $c[2]);
+			$form = $form.$elem;
+		}
+	
+		$form = $form.$this->tag->endForm();
+		return $form;
+	}
+	
 	public function thead($id, $head) {
 		$tabla = '<div id="tdiv"><table id="' . $id . '" class="display" cellspacing="0"><thead><tr>';
 		
@@ -381,4 +407,69 @@ class ControllerBase extends Controller {
 		$v = $this->request->get($var);
 		return $v;
 	}
+	
+	/*
+	 * obtener var de session
+	 */
+	public function gSession($var){
+		$v = $this->session->get($var);
+		return $v;
+	}
+	
+	/*
+	 * set var de session
+	 */
+	public function sSession($var, $valor){
+		$v = $this->session->set($var, $valor);
+		return $v;
+	}
+	
+	/*
+	 * Query generica
+	 */
+	public function query($modelo, $sql){
+		// Execute the query
+		return new Resultset(null, $modelo, $modelo->getReadConnection()->query($sql));
+	}
+	
+	/*
+	 * view function, sets the usual suspects that go into a view
+	 */
+	public function view($titulo, $form = "", $tabla = ""){
+		$this->view->titulo = $this->elemento("h1", ["titulo"], $titulo);
+		$this->view->form = $form;
+		$this->view->tabla = $this->ftable($tabla);
+	}
+	
+	/*
+	 * newPass: to generate initial generic password, in this example is pass
+	 */
+	public function newPass(){
+		$pass = "pass";
+		return $this->security->hash($pass);
+	}
+	
+	/*
+	 * fecha + o - dias (d), meses (m), anios (y)
+	 */
+	public function datePlus($var, $option="d"){
+		$date = date("Y-m-d");
+		$resultado = $this->fechaHoy(false);
+		switch ($option) {
+			case "m":
+				$mod_date = strtotime($date.$var." months");
+				$resultado = date("Y-m-d",$mod_date);
+				break;
+			case "y":
+				$mod_date = strtotime($date.$var." years");
+				$resultado = date("Y-m-d",$mod_date);
+				break;
+			default:
+				$mod_date = strtotime($date.$var." days");
+				$resultado = date("Y-m-d",$mod_date);
+				break;
+		}
+		return $resultado;
+	}
+	
 }
