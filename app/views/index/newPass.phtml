@@ -1,0 +1,43 @@
+<body>
+
+    
+<?php echo $this->tag->form(array("index/changePass",  'enctype' => 'multipart/form-data', 'class' => 'login')); //, 'class' => 'login' ?>
+  
+  <fieldset>
+    
+  	<legend class="legend">Nueva Contrase&ntilde;a</legend>
+    
+    <div class="input">
+    	<?php echo $this->tag->passwordField(array("oldPass", 'placeholder' => 'Password anterior'));
+    	//<input type="password" placeholder="Contrase&ntilde;a" required id="pass" class="pass"/>
+    	?>    	
+      <span><i class="fa fa-lock"></i></span>
+    </div>
+    
+    <div class="input">
+    	<?php echo $this->tag->passwordField(array("newPass", 'placeholder' => 'Password Nueva'));
+    	//<input type="password" placeholder="Contrase&ntilde;a" required id="pass" class="pass"/>
+    	?>    	
+      <span><i class="fa fa-lock"></i></span>
+    </div>
+    
+    <div class="input">
+    	<?php echo $this->tag->passwordField(array("repeatPass", 'placeholder' => 'Repita Password'));
+    	//<input type="password" placeholder="Contrase&ntilde;a" required id="pass" class="pass"/>
+    	?>    	
+      <span><i class="fa fa-lock"></i></span>
+    </div>
+    <p align="center"><?php $this->flashSession->output() ?></p>
+    <button type="submit" class="boton">Cambiar</button>
+    
+  </fieldset>    
+  
+</form>
+    <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+
+        <script src="js/index.js"></script>
+
+    
+    
+    
+</body>

@@ -445,8 +445,20 @@ class ControllerBase extends Controller {
 	 * newPass: to generate initial generic password, in this example is pass
 	 */
 	public function newPass(){
-		$pass = "pass";
+		$pass = Parametros::findFirst("parametro = 'initialPass'");
 		return $this->security->hash($pass);
+	}
+	
+	/*
+	 * checkPass: to compare passwords stored with encryption
+	 */
+	public function checkPass($pass, $comparePass = "", $initial = false){
+		if ($initial){
+			$p = Parametros::findFirst("parametro = 'initialPass'");
+			return $this->security->checkHash($pass, $p->valor);
+		}else{
+			return $this->security->checkHash($pass, $comparePass);
+		}
 	}
 	
 	/*

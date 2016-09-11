@@ -58,8 +58,69 @@
 		</script>        
     </head>
     <body>
+        <?php
+        use Phalcon\Mvc\Model\Resultset\Simple as Resultset;
+        
+    	$usuario = $this->session->get("usuario");
+		if($usuario != null && $usuario != ""){
+			$texto = armaMenu($usuario);
+			$u = Usuario::findFirst($usuario);
+			$p = Parametros::findFirst("parametro = 'initialPass'");
+			if(!$this->security->checkHash($p->valor, $u->clave)){
+				echo $texto;
+			}
+						
+		}else{
+			$homepage = "/comercial/";
+			$currentpage = $_SERVER['REQUEST_URI'];
+			if(!($homepage==$currentpage)) {
+				header("Location: /comercial/");
+			}				
+		}
+		
+		function armaMenu($uid) {
+			$user = Usuario::findFirst("id = $uid");
+			$m = new Menu();
+			$sql = "select * from menu where parent is null and id in (select x.menu from menu_x_rol x where x.rol = '".$user->rol_id."')";
+			$titulos = new Resultset(null, $m, $m->getReadConnection()->query($sql));
+			//$titulos = Menu::find(array("parent is null and id in (select x.menu from menu_x_rol x where x.rol = $user->rol_id)", "order" => "id"));
+	    	$li1 = '<li class="pure-menu-item">';
+	    	$lip = '<li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover pure-menu-link">';
+	    	$a1 = '<a href="';
+	    	$a2 = '" class="pure-menu-link">';
+	    	$afin = '" class="custom-link-exit">';
+	    	$lie = '</a></li>';
+	    	$ul1 = '<ul class="pure-menu-children">';
+	    	$ul2 = '</ul>';
+	    	$html = '
+	    	<div class="pure-menu pure-menu-horizontal">
+			    <ul class="pure-menu-list">';
+	    	foreach ($titulos as $t){
+	    		$sm = new Menu();
+	    		$sql2 = "select * from menu where parent = $t->id and id in (select x.menu from menu_x_rol x where x.rol = '".$user->rol_id."')";
+	    		$smenus = new Resultset(null, $sm, $sm->getReadConnection()->query($sql2));
+	    		//$smenus = Menu::find(array("parent = $t->id  and id in (select x.menu from menu_x_rol x where x.rol = $user->rol_id)", "order" => "id"));
+	    		if(count($smenus) > 0){
+	    			$html = $html.$lip.$t->label.$ul1;
+	    			foreach ($smenus as $sm){
+	    				$html = $html.$li1.$a1.$sm->href.$a2.$sm->label.$lie;
+	    			}
+	    			$html = $html.$ul2;
+	    		}else{
+	    			if($t->id == 99){
+	    				$html = $html.$li1.$a1.$t->href.$afin.$t->label.$lie;
+	    			}else{
+	    				$html = $html.$li1.$a1.$t->href.$a2.$t->label.$lie;
+	    			}
+	    		}    		
+	    	}
+	    	$html = $html.'</ul></div>';
+	    	return $html;
+	    }	 
+		?>
+    	    	
         <div class="container">
             <?php echo $this->getContent();?>
-        </div>        
+		</div>         
     </body>
 </html>
