@@ -435,10 +435,16 @@ class ControllerBase extends Controller {
 	/*
 	 * view function, sets the usual suspects that go into a view
 	 */
-	public function view($titulo, $form = "", $tabla = ""){
+	public function view($titulo, $form = "", $tabla = "", $botones = []){
 		$this->view->titulo = $this->elemento("h1", ["titulo"], $titulo);
 		$this->view->form = $form;
 		$this->view->tabla = $this->ftable($tabla);
+		$boton = "";
+		if(count($botones) > 0){
+			$boton = $this->elemento("bg", [["edit", "guardarCambio()", "Editar"],["cancel", "cancelar()", "Cancelar"]], "");
+			$this->view->js = $this->jsCargarDatos($botones[0], ["main"], ["edit"], $botones[1]);
+		}
+		$this->view->botones = $boton;
 	}
 	
 	/*
@@ -484,4 +490,10 @@ class ControllerBase extends Controller {
 		return $resultado;
 	}
 	
+	/*
+	 * Limpiar campos
+	 */
+	public function limpiar(){
+		$this->tag->resetInput();
+	}
 }

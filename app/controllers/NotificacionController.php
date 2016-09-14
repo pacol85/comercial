@@ -5,9 +5,11 @@ class NotificacionController extends ControllerBase
 
     public function tipoNotificacionAction()
     {
-		$campos = [
+		parent::limpiar();
+    	$campos = [
 				["t", ["tipo"], "Tipo"],
 				["t", ["desc"], "Descripci&oacute;n"],
+				["h", ["id"], ""],
 				["s", ["guardar"], "Guardar"]
 		];
 		
@@ -18,13 +20,18 @@ class NotificacionController extends ControllerBase
 			$tabla = $tabla.parent::tbody([
 					$t->tipo,
 					$t->descripcion, 
+					parent::a(2, "cargarDatos('".$t->id."','".$t->tipo."','".$t->descripcion."');", "Modificar")." | ".
 					parent::a(1, "notificacion/eliminaTipo", "Eliminar", [["id", $t->id]])
 			]);
 		}
+		
+		//js
+		$fields = ["id", "tipo", "desc"];
+		$otros = "";
+		
     	$form = parent::form($campos, "notificacion/crearTipo", "form1");
     	$tabla = parent::ftable($tabla);
-    	
-    	parent::view("Tipo Notificaci&oacute;n", $form, $tabla);
+    	parent::view("Tipo Notificaci&oacute;n", $form, $tabla, [$fields, $otros]);
     }
     
     public function crearTipoAction(){
@@ -56,6 +63,22 @@ class NotificacionController extends ControllerBase
     			parent::msg("Ocurri&oacute; un error durante la operaci&oacute;n");
     		}
     	}    		    	
+    	parent::forward("notificacion", "tipoNotificacion");
+    }
+    
+    public function editTipoNotifAction(){
+    	if(parent::vPost("id")){
+    		$tipo = TipoNotificacion::findFirst("id = ".parent::gPost("id"));
+    		$tipo->tipo = parent::gPost("tipo");
+    		$tipo->descripcion = parent::gPost("desc");
+    		if($tipo->update()){
+    			parent::msg("Tipo de Notificaci&oacute;n modificada exitosamente", "s");
+    		}else{
+    			parent::msg("Ocurri&oacute; un error durante la operaci&oacute;n");
+    		}
+    	}else{
+    		parent::msg("Ocurri&oacute; un error al cargar el Tipo de Notificaci&oacute;n");
+    	}
     	parent::forward("notificacion", "tipoNotificacion");
     }
 
