@@ -327,6 +327,23 @@ class ControllerBase extends Controller {
 	}
 	
 	/*
+	 * JS para submit de modificacion y cancelar
+	 */
+	public function jsBotones($form, $action1, $action2){
+		$html = "
+		function guardarCambio(){
+			$('#$form').attr('action', '/comercial/$action1');
+			$('#$form').submit();
+		}
+		function cancelar(){
+			$('#$form').attr('action', '/comercial/$action2');
+			$('#$form').submit();
+		}
+		";
+		return $html;
+	}
+	
+	/*
 	 * Funcion para el dispatcher Forward
 	 */
 	public function forward($controller, $action) {
@@ -442,7 +459,8 @@ class ControllerBase extends Controller {
 		$boton = "";
 		if(count($botones) > 0){
 			$boton = $this->elemento("bg", [["edit", "guardarCambio()", "Editar"],["cancel", "cancelar()", "Cancelar"]], "");
-			$this->view->js = $this->jsCargarDatos($botones[0], ["main"], ["edit"], $botones[1]);
+			$js = $this->jsCargarDatos($botones[0], ["main"], ["edit"], $botones[1]);
+			$this->view->js = $js.$this->jsBotones($botones[2][0], $botones[2][1], $botones[2][2]);
 		}
 		$this->view->botones = $boton;
 	}

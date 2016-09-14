@@ -28,10 +28,11 @@ class NotificacionController extends ControllerBase
 		//js
 		$fields = ["id", "tipo", "desc"];
 		$otros = "";
+		$jsBotones = ["form1", "notificacion/editTipoNotif", "notificacion/tipoNotificacion"];
 		
     	$form = parent::form($campos, "notificacion/crearTipo", "form1");
     	$tabla = parent::ftable($tabla);
-    	parent::view("Tipo Notificaci&oacute;n", $form, $tabla, [$fields, $otros]);
+    	parent::view("Tipo Notificaci&oacute;n", $form, $tabla, [$fields, $otros, $jsBotones]);
     }
     
     public function crearTipoAction(){
