@@ -92,6 +92,36 @@ class Empleado extends \Phalcon\Mvc\Model
      * @var string
      */
     public $salario;
+    
+    /**
+     *
+     * @var string
+     */
+    public $dui;
+    
+    /**
+     *
+     * @var string
+     */
+    public $nit;
+    
+    /**
+     *
+     * @var string
+     */
+    public $afp;
+    
+    /**
+     *
+     * @var string
+     */
+    public $afpnum;
+    
+    /**
+     *
+     * @var string
+     */
+    public $isss;
 
     /**
      * Initialize method for model.
