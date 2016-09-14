@@ -5,24 +5,33 @@ class EstadoFacturaController extends ControllerBase
 
     public function indexAction()
     {
-		$campos = [
+		parent::limpiar();
+    	$campos = [
 				["t", ["nombre"], "Nombre"],
 				["t", ["desc"], "Descripci&oacute;n"],
 				["s", ["guardar"], "Guardar"]
 		];
-		$head = ["Nombre", "Descripci&oacute;n", "Modificaci&oacute;n", "Acciones"];
+		$head = ["Nombre", "Descripci&oacute;n", "Acciones"];
 		$tabla = parent::thead("estadoFactura", $head);
 		$estadoFactura = EstadoFactura::find();
 		foreach ($estadoFactura as $r){
 			$tabla = $tabla.parent::tbody([
 					$r->nombre,
 					$r->descripcion,
+					parent::a(2, "cargarDatos('".$r->id."','".$r->nombre."','".$r->descripcion."');", "Modificar")." | ".
 					parent::a(1, "estadoFactura/eliminar", "Eliminar", [["id", $r->id]])
 			]);
 		}
-    	$this->view->titulo = parent::elemento("h1", ["titulo"], "Estado de factura");
-    	$this->view->form = parent::form($campos, "estadoFactura/guardar", "form1");
-    	$this->view->tabla = parent::ftable($tabla);
+		
+		//js
+		$fields = ["id", "nombre", "desc"];
+		$otros = "";
+		$jsBotones = ["form1", "estadoFactura/edit", "estadoFactura"];
+		
+    	$form = parent::form($campos, "estadoFactura/guardar", "form1");
+    	$tabla = parent::ftable($tabla);
+    
+    	parent::view("Estado de factura", $form, $tabla, [$fields, $otros, $jsBotones]);
     }
     
     public function guardarAction(){
@@ -57,5 +66,20 @@ class EstadoFacturaController extends ControllerBase
     	parent::forward("estadoFactura", "index");
     }
 
+    public function editAction(){
+    	if(parent::vPost("id")){
+    		$estadoFactura = EstadoFactura::findFirst("id = ".parent::gPost("id"));
+    		$estadoFactura->nombre = parent::gPost("nombre");
+    		$estadoFactura->descripcion = parent::gPost("desc");
+    		if($estadoFactura->update()){
+    			parent::msg("Estado de factura modificada exitosamente", "s");
+    		}else{
+    			parent::msg("Ocurri&oacute; un error durante la operaci&oacute;n");
+    		}
+    	}else{
+    		parent::msg("Ocurri&oacute; un error al cargar el Estado de factura");
+    	}
+    	parent::forward("estadoFactura", "estadoFactura");
+    }
 }
 
