@@ -63,10 +63,11 @@
         
     	$usuario = $this->session->get("usuario");
 		if($usuario != null && $usuario != ""){
+			$this->session->set("error", "");
 			$texto = armaMenu($usuario);
 			$u = Usuario::findFirst($usuario);
 			$p = Parametros::findFirst("parametro = 'initialPass'");
-			if(!$this->security->checkHash($p->valor, $u->clave)){
+			if($p->valor != $u->clave){
 				echo $texto;
 			}
 						
@@ -74,6 +75,7 @@
 			$homepage = "/comercial/";
 			$currentpage = $_SERVER['REQUEST_URI'];
 			if(!($homepage==$currentpage)) {
+				$this->session->set("error", "Debe iniciar Sesi&oacute;n primero");
 				header("Location: /comercial/");
 			}				
 		}

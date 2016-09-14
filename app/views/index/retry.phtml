@@ -1,7 +1,7 @@
 <body>
 
     
-<?php echo $this->tag->form(array("index/retry",  'enctype' => 'multipart/form-data', 'class' => 'login')); //, 'class' => 'login' ?>
+<?php echo $this->tag->form(array("index/entrar",  'enctype' => 'multipart/form-data', 'class' => 'login')); //, 'class' => 'login' ?>
   
   <fieldset>
     
@@ -20,7 +20,7 @@
     	?>    	
       <span><i class="fa fa-lock"></i></span>
     </div>
-    <p align="center"><?php $this->flashSession->output() ?></p>
+    <p align="center"><?php echo $this->getContent(); ?></p>
     <button type="submit" class="submit"><i class="fa fa-long-arrow-right"></i></button>    
     
     
