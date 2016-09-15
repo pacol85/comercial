@@ -59,7 +59,7 @@ class TipoProveedorController extends ControllerBase
     	}else {
     		$nTipoProveedor = $tipoProveedor->tipo;    		 
     		if($tipoProveedor->delete()){
-    			parent::msg("Se elimin&oacute; el Rol: $nTipoProveedor", "s");
+    			parent::msg("Se elimin&oacute; el Tipo de proveedor: $nTipoProveedor", "s");
     		}else{
     			parent::msg("","db");
     		}
