@@ -21,7 +21,7 @@ class IndexController extends ControllerBase
 		$pass = parent::gPost("pass");
 		$pass = trim($pass);
 		// Ver si existe el usuario y contraseña
-		$success = Usuario::find("usuario ='$user'");
+		$success = Usuario::find("usuario ='$user' and estado = 1");
 		 
 		if ($success->count() < 2 && $success->count() > 0) {
 			$usuario = new Usuario();

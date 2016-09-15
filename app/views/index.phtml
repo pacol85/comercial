@@ -74,10 +74,15 @@
 		}else{
 			$homepage = "/comercial/";
 			$currentpage = $_SERVER['REQUEST_URI'];
-			if(!($homepage==$currentpage)) {
-				$this->session->set("error", "Debe iniciar Sesi&oacute;n primero");
-				header("Location: /comercial/");
-			}				
+			$pos = strpos($currentpage, "retry");
+			if($pos === false){
+				if(!($homepage==$currentpage)) {
+					$this->session->set("error", "Debe iniciar Sesi&oacute;n primero");
+					header("Location: /comercial/");
+				}else{
+					$this->session->set("error", "");
+				}	
+			}							
 		}
 		
 		function armaMenu($uid) {
