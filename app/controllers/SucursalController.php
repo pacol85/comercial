@@ -1,86 +1,101 @@
 <?php
 
-class NotificacionController extends ControllerBase
+class SucursalController extends ControllerBase
 {
 
-    public function tipoNotificacionAction()
+    public function indexAction()
     {
 		parent::limpiar();
     	$campos = [
-				["t", ["tipo"], "Tipo"],
-				["t", ["desc"], "Descripci&oacute;n"],
-				["h", ["id"], ""],
+				["t", ["nombre"], "Nombre"],
+				["t", ["dir"], "Direcci&oacute;n"],
+    			["t", ["tel"], "Tel&eacute;fono"],
+    			["t", ["fax"], "Fax"],
+				["e", ["email"], "eMail"],
+    			["h", ["id"], ""],
 				["s", ["guardar"], "Guardar"]
 		];
 		
-		$head = ["Tipo", "Descripci&oacute;n", "Acciones"];
-		$tabla = parent::thead("tipoNotificacion", $head);
-		$tipos = TipoNotificacion::find();
-		foreach ($tipos as $t){
+		$head = ["Nombre", "Tel&eacute;fono", "Fax", "eMail", "Acciones"];
+		$tabla = parent::thead("sucursales", $head);
+		$suc = Sucursal::find();
+		foreach ($suc as $s){
 			$tabla = $tabla.parent::tbody([
-					$t->tipo,
-					$t->descripcion, 
-					parent::a(2, "cargarDatos('".$t->id."','".$t->tipo."','".$t->descripcion."');", "Modificar")." | ".
-					parent::a(1, "notificacion/eliminaTipo", "Eliminar", [["id", $t->id]])
+					$s->nombre,
+					$s->telefono, 
+					$s->fax, 
+					$s->email,
+					parent::a(2, "cargarDatos('".$s->id."','".$s->nombre."','".$s->direccion."','".
+							$s->telefono."','".$s->fax."','".$s->email."');", "Modificar")." | ".
+					parent::a(1, "sucursal/eliminar", "Eliminar", [["id", $s->id]])
 			]);
 		}
 		
 		//js
-		$fields = ["id", "tipo", "desc"];
+		$fields = ["id", "nombre", "dir", "tel", "fax", "email"];
 		$otros = "";
-		$jsBotones = ["form1", "notificacion/editTipoNotif", "notificacion/tipoNotificacion"];
+		$jsBotones = ["form1", "sucursal/editar", "sucursal/index"];
 		
-    	$form = parent::form($campos, "notificacion/crearTipo", "form1");
+    	$form = parent::form($campos, "sucursal/guardar", "form1");
     	$tabla = parent::ftable($tabla);
-    	parent::view("Tipo Notificaci&oacute;n", $form, $tabla, [$fields, $otros, $jsBotones]);
+    	parent::view("Sucursal", $form, $tabla, [$fields, $otros, $jsBotones]);
     }
     
-    public function crearTipoAction(){
-    	if(parent::vPost("tipo")){
-    		$tipo = new TipoNotificacion();
-    		$tipo->tipo = parent::gPost("tipo");
-    		$tipo->descripcion = parent::gPost("desc");
-    		if($tipo->save()){
-    			parent::msg("Tipo de Notificaci&oacute;n creada exitosamente", "s");
+    public function guardarAction(){
+    	if(parent::vPost("nombre") && parent::vPost("dir")){
+    		$s = new Sucursal();
+    		$s->direccion = parent::gPost("dir");
+    		$s->email = parent::gPost("email");
+    		$s->empresa = 1;
+    		$s->fax = parent::gPost("fax");
+    		$s->nombre = parent::gPost("nombre");
+    		$s->telefono = parent::gPost("tel");
+    		$s->estado = 1;
+    		if($s->save()){
+    			parent::msg("Sucursal creada exitosamente", "s");
     		}else{
     			parent::msg("Ocurri&oacute; un error durante la operaci&oacute;n");
     		}
     	}else{
-    		parent::msg("El campo de Tipo no puede quedar en blanco");
+    		parent::msg("Nombre y Direcci&oacute;n no pueden quedar en blanco");
     	}
-    	parent::forward("notificacion", "tipoNotificacion");
+    	parent::forward("sucursal", "index");
     }
     
-    public function eliminaTipoAction(){
-    	$tipo = TipoNotificacion::findFirst("id = ".parent::gReq("id"));
-    	$notif = Notificaciones::find("id = $tipo->id");
-    	if(count($notif) > 0){
-    		parent::msg("No se puede eliminar un tipo de notificaci&oacute;n que est&aacute; en uso");
-    		parent::forward("notificacion", "tipoNotificacion");
+    public function eliminarAction(){
+    	$suc = Sucursal::findFirst("id = ".parent::gReq("id"));
+    	$emp = Empleado::find("id = $suc->id");
+    	if(count($emp) > 0){
+    		parent::msg("No se puede eliminar una Sucursal que est&aacute; en uso");
+    		parent::forward("sucursal", "index");
     	}else{
-    		if($tipo->delete()){
-    			parent::msg("Se elimin&oacute; correctamente el tipo de notificaci&oacute;n");		
+    		if($suc->delete()){
+    			parent::msg("Se elimin&oacute; correctamente la Sucursal", "s");		
     		}else{
     			parent::msg("Ocurri&oacute; un error durante la operaci&oacute;n");
     		}
     	}    		    	
-    	parent::forward("notificacion", "tipoNotificacion");
+    	parent::forward("sucursal", "index");
     }
     
-    public function editTipoNotifAction(){
+    public function editarAction(){
     	if(parent::vPost("id")){
-    		$tipo = TipoNotificacion::findFirst("id = ".parent::gPost("id"));
-    		$tipo->tipo = parent::gPost("tipo");
-    		$tipo->descripcion = parent::gPost("desc");
-    		if($tipo->update()){
-    			parent::msg("Tipo de Notificaci&oacute;n modificada exitosamente", "s");
+    		$s = Sucursal::findFirst("id = ".parent::gPost("id"));
+    		$s->direccion = parent::gPost("dir");
+    		$s->email = parent::gPost("email");
+    		$s->empresa = 1;
+    		$s->fax = parent::gPost("fax");
+    		$s->nombre = parent::gPost("nombre");
+    		$s->telefono = parent::gPost("tel");
+    		if($s->update()){
+    			parent::msg("Sucursal modificada exitosamente", "s");
     		}else{
     			parent::msg("Ocurri&oacute; un error durante la operaci&oacute;n");
     		}
     	}else{
-    		parent::msg("Ocurri&oacute; un error al cargar el Tipo de Notificaci&oacute;n");
+    		parent::msg("Ocurri&oacute; un error al cargar la Sucursal");
     	}
-    	parent::forward("notificacion", "tipoNotificacion");
+    	parent::forward("sucursal", "index");
     }
 
 }

@@ -46,6 +46,12 @@ class Sucursal extends \Phalcon\Mvc\Model
      * @var string
      */
     public $empresa;
+    
+    /**
+     *
+     * @var integer
+     */
+    public $estado;
 
     /**
      * Validations and business logic
