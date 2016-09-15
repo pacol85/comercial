@@ -8,6 +8,7 @@ class EstadoFacturaController extends ControllerBase
 		parent::limpiar();
     	$campos = [
 				["t", ["nombre"], "Nombre"],
+				["h", ["id"], ""],
 				["t", ["desc"], "Descripci&oacute;n"],
 				["s", ["guardar"], "Guardar"]
 		];
@@ -18,7 +19,7 @@ class EstadoFacturaController extends ControllerBase
 			$tabla = $tabla.parent::tbody([
 					$r->nombre,
 					$r->descripcion,
-					parent::a(2, "cargarDatos('".$r->id."','".$r->nombre."','".$r->descripcion."');", "Modificar")." | ".
+					parent::a(2, "cargarDatos('".$r->id."','".$r->nombre."','".$r->descripcion."');", "Editar")." | ".
 					parent::a(1, "estadoFactura/eliminar", "Eliminar", [["id", $r->id]])
 			]);
 		}
@@ -79,7 +80,7 @@ class EstadoFacturaController extends ControllerBase
     	}else{
     		parent::msg("Ocurri&oacute; un error al cargar el Estado de factura");
     	}
-    	parent::forward("estadoFactura", "estadoFactura");
+    	parent::forward("estadoFactura", "index");
     }
 }
 
