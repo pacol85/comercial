@@ -9,6 +9,7 @@ class EstadoFacturaController extends ControllerBase
     	$campos = [
 				["t", ["nombre"], "Nombre"],
 				["t", ["desc"], "Descripci&oacute;n"],
+    			["h", ["id"], ""],
 				["s", ["guardar"], "Guardar"]
 		];
 		$head = ["Nombre", "Descripci&oacute;n", "Acciones"];

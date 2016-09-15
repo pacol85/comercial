@@ -140,7 +140,7 @@ class ControllerBase extends Controller {
 						$elem = $elem . $this->tag->textField ( array (
 								"$n[0]",
 								"size" => 30,
-								"class" => "form-control money",
+								"class" => "form-control number",
 								"id" => "$n[0]",
 								"value" => "$n[1]" 
 						) );
