@@ -470,7 +470,7 @@ class ControllerBase extends Controller {
 	 */
 	public function newPass(){
 		$pass = Parametros::findFirst("parametro = 'initialPass'");
-		return $this->security->hash($pass);
+		return $pass->valor;
 	}
 	
 	/*

@@ -4,6 +4,7 @@ class UsuarioController extends ControllerBase
 
 	public function indexAction()
 	{
+		parent::limpiar();
 		$rol = Roles::find();
 		$campos = [
 				["t", ["usuario"], "Usuario"],
@@ -18,18 +19,28 @@ class UsuarioController extends ControllerBase
 		$usuarios = Usuario::find();
 		foreach ($usuarios as $u){
 			$r = Roles::findFirst("id = ".$u->rol_id);
+			$deshabilitar = "Deshabilitar";
+			if($u->estado == 0){
+				$deshabilitar = "Habilitar";
+			}
 			$tabla = $tabla.parent::tbody([
 					$u->usuario,
 					$r->rol,
 					$u->fcreacion,
 					$u->fmod,
 					$u->fclave,
-					parent::a(1, "usuario/deshabilitar", "Deshabilitar", [["id", $u->id]])." | ".
+					parent::a(2, "cargarDatos('".$u->id."', '".$u->usuario."', '".$u->rol_id."')", "Editar")." | ".
+					parent::a(1, "usuario/deshabilitar", $deshabilitar, [["id", $u->id]])." | ".
 					parent::a(1, "usuario/resetear", "Resetear", [["id", $u->id]])
 			]);
 		}		
 		
-		parent::view("Usuarios", $form, $tabla);
+		//js
+		$fields = ["id", "usuario", "rol"];
+		$otros = "";
+		$jsBotones = ["form1", "usuario/edit", "usuario/index"];
+		
+		parent::view("Usuarios", $form, $tabla, [$fields, $otros, $jsBotones]);
 	}
 	
 	public function guardarAction(){
@@ -51,17 +62,81 @@ class UsuarioController extends ControllerBase
 				parent::msg("El usuario fue creado exitosamente", "s");
 			}else{
 				parent::msg("Ocurri&oacute; un error durante la transacci&oacute;n");
-				parent::msg("clave = $user->clave");
-				parent::msg("fclave = $user->fclave");
-				parent::msg("fcreacion = $user->fcreacion");
-				parent::msg("fmod = $user->fmod");
-				parent::msg("rol_id = $user->rol_id");
-				parent::msg("usuario = $user->usuario");
 			}
 		}else{
 			parent::msg("El nombre de usuario no puede quedar en blanco");
 		}
 		parent::forward("usuario", "index");
+	}
+	
+	public function editAction(){
+		if(!parent::vPost("id")){
+			parent::msg("Id no se carg&oacute; correctamente");
+			parent::forward("usuario", "index");
+		}
+		$id = parent::gPost("id");
+		$u = Usuario::findFirst("id = $id");
+		$user = parent::gPost("usuario");
+		$users = Usuario::find("usuario like '$user' and id not like $id");
+		if(count($users) > 0){
+			parent::msg("El usuario $user ya est&aacute; siendo utilizado");
+			parent::forward("usuario", "index");
+		}
+		$u->usuario = $user;
+		$u->rol_id = parent::gPost("rol");
+		$u->fmod = parent::fechaHoy(true);
+		if($u->update()){
+			parent::msg("Edici&oacute;n exitosa", "s");
+			parent::forward("usuario", "index");
+		}else{
+			parent::msg("Ocurri&oacute; un error durante la transacci&oacute;n");
+			parent::forward("usuario", "index");
+		}
+		
+	}
+	
+	public function resetearAction(){
+		$id = parent::gReq("id");
+		if($id == "" || $id == null){
+			parent::msg("Id no se carg&oacute; correctamente");
+			parent::forward("usuario", "index");
+		}
+		$u = Usuario::findFirst("id = $id");
+		$u->clave = parent::newPass();
+		$u->fmod = parent::fechaHoy(true);
+		if($u->update()){
+			parent::msg("Contrase&ntilde;a reseteada para usuario $u->usuario", "s");
+			parent::forward("usuario", "index");
+		}else{
+			parent::msg("Ocurri&oacute; un error durante la transacci&oacute;n");
+			parent::forward("usuario", "index");
+		}
+	}
+	
+	public function deshabilitarAction(){
+		$id = parent::gReq("id");
+		if($id == "" || $id == null){
+			parent::msg("Id no se carg&oacute; correctamente");
+			parent::forward("usuario", "index");
+		}
+		$u = Usuario::findFirst("id = $id");
+		if($u->estado == 1){
+			$u->estado = 0;
+		}else{
+			$u->estado = 1;
+		}
+		$u->fmod = parent::fechaHoy(true);
+		if($u->update()){
+			if($u->estado == 1){
+				parent::msg("Usuario $u->usuario deshabilitado exitosamente", "s");
+			}else{
+				parent::msg("Usuario $u->usuario habilitado exitosamente", "s");
+			}			
+			parent::forward("usuario", "index");
+		}else{
+			parent::msg("Ocurri&oacute; un error durante la transacci&oacute;n");
+			parent::forward("usuario", "index");
+		}
 	}
 
 }

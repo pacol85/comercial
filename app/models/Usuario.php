@@ -44,6 +44,12 @@ class Usuario extends \Phalcon\Mvc\Model
      * @var string
      */
     public $fclave;
+    
+    /**
+     *
+     * @var integer
+     */
+    public $estado;
 
     /**
      * Initialize method for model.
