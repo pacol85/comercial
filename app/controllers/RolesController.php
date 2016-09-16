@@ -49,14 +49,20 @@ class RolesController extends ControllerBase
     	$menus = MenuXRol::find(array("rol = $rol->id"));
     	if(count($menus) > 0){
     		parent::msg("No se puede eliminar un Rol que tenga asociado uno o m&aacute;s men&uacute;s", "w");
-    	}else {
-    		$nrol = $rol->rol;    		 
-    		if($rol->delete()){
-    			parent::msg("Se elimin&oacute; el Rol: $nrol", "s");
-    		}else{
-    			parent::msg("","db");
-    		}
-    	}    	
+    		return parent::forward("roles", "index");
+    	}
+    	$user = Usuario::find("rol_id = $rol->id");
+    	if(count($user) > 0){
+    		parent::msg("No se puede eliminar un Rol que tenga asociado uno o m&aacute;s Usuarios", "w");
+    		return parent::forward("roles", "index");
+    	}
+    	$nrol = $rol->rol;    		 
+    	if($rol->delete()){
+    		parent::msg("Se elimin&oacute; el Rol: $nrol", "s");
+    	}else{
+    		parent::msg("Ocurri&oacute; un error durante la operación");
+    	}
+    	    	
     	parent::forward("roles", "index");
     }
 
