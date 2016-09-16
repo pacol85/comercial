@@ -49,7 +49,10 @@
         <script type="text/javascript">
 			$(document).ready(function() {
 				$('.date').mask('0000-00-00');
-				$('.datepicker').pickadate();
+				$('.datepicker').pickadate({
+					selectYears: true,
+					selectMonths: true
+					});
 				$('.money').mask("#,##0.00", {reverse: true});
 				$('.email').mask("A", {
 					translation: {

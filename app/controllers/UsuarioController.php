@@ -128,9 +128,9 @@ class UsuarioController extends ControllerBase
 		$u->fmod = parent::fechaHoy(true);
 		if($u->update()){
 			if($u->estado == 1){
-				parent::msg("Usuario $u->usuario deshabilitado exitosamente", "s");
+				parent::msg("Usuario $u->usuario Habilitado exitosamente", "s");
 			}else{
-				parent::msg("Usuario $u->usuario habilitado exitosamente", "s");
+				parent::msg("Usuario $u->usuario Deshabilitado exitosamente", "s");
 			}			
 			parent::forward("usuario", "index");
 		}else{
