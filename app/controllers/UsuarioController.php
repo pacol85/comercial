@@ -50,18 +50,19 @@ class UsuarioController extends ControllerBase
 			if(count($u) > 0){
 				parent::msg("El usuario $uid ya existe");
 				parent::forward("usuario", "index");
-			}
-			$user = new Usuario();
-			$user->clave = parent::newPass();
-			$user->fclave = parent::datePlus("+5");
-			$user->fcreacion = parent::fechaHoy(true);
-			$user->fmod = parent::fechaHoy(true);
-			$user->rol_id = parent::gPost("rol");
-			$user->usuario = $uid;
-			if($user->save()){
-				parent::msg("El usuario fue creado exitosamente", "s");
-			}else{
-				parent::msg("Ocurri&oacute; un error durante la transacci&oacute;n");
+			} else {
+				$user = new Usuario();
+				$user->clave = parent::newPass();
+				$user->fclave = parent::datePlus("+5");
+				$user->fcreacion = parent::fechaHoy(true);
+				$user->fmod = parent::fechaHoy(true);
+				$user->rol_id = parent::gPost("rol");
+				$user->usuario = $uid;
+				if($user->save()){
+					parent::msg("El usuario fue creado exitosamente", "s");
+				}else{
+					parent::msg("Ocurri&oacute; un error durante la transacci&oacute;n");
+				}
 			}
 		}else{
 			parent::msg("El nombre de usuario no puede quedar en blanco");
@@ -81,18 +82,18 @@ class UsuarioController extends ControllerBase
 		if(count($users) > 0){
 			parent::msg("El usuario $user ya est&aacute; siendo utilizado");
 			parent::forward("usuario", "index");
-		}
-		$u->usuario = $user;
-		$u->rol_id = parent::gPost("rol");
-		$u->fmod = parent::fechaHoy(true);
-		if($u->update()){
-			parent::msg("Edici&oacute;n exitosa", "s");
-			parent::forward("usuario", "index");
-		}else{
-			parent::msg("Ocurri&oacute; un error durante la transacci&oacute;n");
-			parent::forward("usuario", "index");
-		}
-		
+		} else {
+			$u->usuario = $user;
+			$u->rol_id = parent::gPost("rol");
+			$u->fmod = parent::fechaHoy(true);
+			if($u->update()){
+				parent::msg("Edici&oacute;n exitosa", "s");
+				parent::forward("usuario", "index");
+			}else{
+				parent::msg("Ocurri&oacute; un error durante la transacci&oacute;n");
+				parent::forward("usuario", "index");
+			}
+		}		
 	}
 	
 	public function resetearAction(){

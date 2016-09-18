@@ -93,14 +93,14 @@ class MunicipiosController extends ControllerBase
     		if(count($consulta) > 0){
     			parent::msg("La combinaci&oacute;n de municipio $municipio->nombre y departamento $departamento->nombre");
     			parent::forward("municipios", "index");
-    		}
-    		
-    		$municipio->descripcion = parent::gPost("desc");
-    		$municipio->fmod = parent::fechaHoy(true);
-    		if($municipio->update()){
-    			parent::msg("Municipio modificado exitosamente", "s");
-    		}else{
-    			parent::msg("Ocurri&oacute; un error durante la operaci&oacute;n");
+    		} else {
+	    		$municipio->descripcion = parent::gPost("desc");
+	    		$municipio->fmod = parent::fechaHoy(true);
+	    		if($municipio->update()){
+	    			parent::msg("Municipio modificado exitosamente", "s");
+	    		}else{
+	    			parent::msg("Ocurri&oacute; un error durante la operaci&oacute;n");
+	    		}
     		}
     	}else{
     		parent::msg("Ocurri&oacute; un error al cargar el Municipio");
