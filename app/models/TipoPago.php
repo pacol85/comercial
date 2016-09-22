@@ -1,6 +1,6 @@
 <?php
 
-class OrdenCompra extends \Phalcon\Mvc\Model
+class TipoPago extends \Phalcon\Mvc\Model
 {
 
     /**
@@ -13,40 +13,20 @@ class OrdenCompra extends \Phalcon\Mvc\Model
      *
      * @var string
      */
-    public $item;
+    public $tipo;
 
     /**
      *
      * @var string
      */
-    public $proveedor;
-
-    /**
-     *
-     * @var string
-     */
-    public $cantidad;
-
-    /**
-     *
-     * @var string
-     */
-    public $fecha_compra;
-    
-    /**
-     *
-     * @var int
-     */
-    public $tipoPago;
+    public $descripcion;
 
     /**
      * Initialize method for model.
      */
     public function initialize()
     {
-        $this->belongsTo('item', 'Item', 'id', array('alias' => 'Item'));
-        $this->belongsTo('proveedor', 'Proveedor', 'id', array('alias' => 'Proveedor'));
-        $this->belongsTo('tipoPago', 'TipoPago', 'id', array('alias' => 'TipoPago'));
+        $this->hasMany('id', 'OrdenCompra', 'tipoPago', array('alias' => 'OrdenCompra'));
     }
 
     /**
@@ -56,14 +36,14 @@ class OrdenCompra extends \Phalcon\Mvc\Model
      */
     public function getSource()
     {
-        return 'orden_compra';
+        return 'tipo_pago';
     }
 
     /**
      * Allows to query a set of records that match the specified conditions
      *
      * @param mixed $parameters
-     * @return OrdenCompra[]
+     * @return TipoPago[]
      */
     public static function find($parameters = null)
     {
@@ -74,7 +54,7 @@ class OrdenCompra extends \Phalcon\Mvc\Model
      * Allows to query the first record that match the specified conditions
      *
      * @param mixed $parameters
-     * @return OrdenCompra
+     * @return TipoPago
      */
     public static function findFirst($parameters = null)
     {
