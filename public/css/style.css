@@ -162,3 +162,10 @@ img {
 	max-width:120%;
 	max-height:120%;
 }
+
+.logoRight {
+  position: absolute;
+  width: 100px;
+  right: 20px;
+  top: 0px;
+}
