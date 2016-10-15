@@ -1,6 +1,6 @@
 <?php
 
-class EstadoFacturaController extends ControllerBase
+class EstadofacturaController extends ControllerBase
 {
 
     public function indexAction()

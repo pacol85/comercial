@@ -58,9 +58,9 @@ text-decoration:none;
 width:100%;
 text-align:center;
 display:block;
-background-color:#FFBC00;
+background-color:#204071;
 color:#fff;
-border:1px solid #FFCB00;
+border:1px solid #204071;
 padding:10px 0;
 font-size:20px;
 cursor:pointer;
@@ -71,6 +71,11 @@ color:red;
 font-weight:700
 }
 /*----------------------------------------------
+background-color:#FFBC00;
+color:#fff;
+border:1px solid #FFCB00;
+
+
 button {
 width:10%;
 height:45px;
