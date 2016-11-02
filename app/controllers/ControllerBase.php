@@ -89,7 +89,7 @@ class ControllerBase extends Controller {
 				break;
 			case "enter" :
 				$elem = $elem . '<nobr>&nbsp;</nobr>';
-				break;
+				break;			
 			default :
 				$elem = '<div class="form-group"><label for="';
 				// agregamos el nombre
@@ -219,6 +219,16 @@ class ControllerBase extends Controller {
 							$elem = $elem . "&nbsp;";
 						}
 						break;
+					case "ls" :
+						$elem = $elem . $this->tag->textField ( array (
+								"$n[0]",
+								"size" => 30,
+								"class" => "form-control",
+								"id" => "$n[0]",
+								"onkeyup" => "$n[1]"							
+						) );
+						$elem = $elem."</div><div id=\"livesearch\">";
+						break;						
 				}
 				$elem = $elem . '</div></div>';
 		}
