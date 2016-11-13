@@ -15,7 +15,7 @@ class MunicipiosController extends ControllerBase
 		];		
 		$form = parent::form($campos, "municipios/guardar", "form1");
 		
-		$head = ["Municipios", "Nombre", "Descripci&oacute;n", "Departamento", "Creaci&oacute;n", "Modificaci&oacute;n", "Acciones"];
+		$head = ["Nombre", "Descripci&oacute;n", "Departamento", "Creaci&oacute;n", "Modificaci&oacute;n", "Acciones"];
 		$tabla = parent::thead("municipios", $head);
 		$municipios = Municipios::find();
 		foreach ($municipios as $u){
