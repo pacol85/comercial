@@ -6,6 +6,10 @@ class ClienteController extends ControllerBase
 	{
 		parent::limpiar();
 		$sucursal = Sucursal::find("estado = 1");
+		$dept = Departamentos::find();
+		$d = $dept->getFirst();
+		$muni = Municipios::find("departamento = $d->id");
+		//["ls", ["municipio", "municipios('ajax/municipios')"], "Municipio"],
 		
 		$campos = [
 				["t", ["nombre"], "Nombre Completo"],
@@ -14,66 +18,62 @@ class ClienteController extends ControllerBase
 				["d", ["expedicion"], "Fecha Expedici&oacute;n"],
 				["t", ["lugar"], "Lugar Expedici&oacute;n"],
 				["t", ["dir"], "Direcci&oacute;n"],
-				["ls", ["municipio", "municipios('ajax/municipios')"], "Municipio"],
+				["sdb", ["dept", $dept, ["id", "nombre"]], "Departamento"],
+				["sdb", ["muni", $muni, ["id", "nombre"]], "Municipio", "mdiv"],
 				["h", ["mid"], ""],
-				["sel", ["genero", ["m" => "Masculino", "f" => "Femenino"]], "G&eacute;nero"],
-				["d", ["fNac"], "Fecha Nacimiento"],
-				["h", ["fNac2"], ""],
-				["t", ["dir"], "Direcci&oacute;n"],
-				["d", ["fIngreso"], "Fecha Ingreso"],
-				["h", ["fIngreso2"], ""],
-				["sdb", ["suc", $sucursal, ["id", "nombre"]], "Sucursal"],
-				["m", ["salario", 0], "Salario"],
-				["t", ["dui"], "DUI"],
-				["t", ["nit"], "NIT"],
-				["t", ["isss"], "ISSS"],
-				["t", ["afp"], "AFP"],
-				["t", ["nafp"], "No. AFP"],
+				["sel", ["alquila", ["1" => "S&iacute;", "0" => "No"]], "Alquila"],
+				["t", ["propietario"], "Propietario"],
+				["t", ["trabajo"], "Trabajo"],
+				["t", ["area"], "Area de trabajo"],
+				["t", ["cargo"], "Cargo"],
+				["d", ["fdesde"], "Desde"],
+				["m", ["sueldo", 0], "Sueldo"],
+				["t", ["tofic"], "Tel&eacute;fono Oficina"],
 				["h", ["id"], ""],
 				["s", [""], "Guardar"]	
 		];		
-		$form = parent::form($campos, "empleado/guardar", "form1");
+		$form = parent::form($campos, "cliente/guardar", "form1");
 		
-		$head = ["Nombre", "Apellido", "G&eacute;nero", "Fecha Ingreso",
-				"Sucursal", "Salario", "Acciones"				
+		$head = ["Nombre", "Documento", "Municipio", "Alquila", "Trabajo",
+				"Sueldo", "Tel.", "Acciones"				
 		];
-		$tabla = parent::thead("empleados", $head);
-		$empleados = Empleado::find();
-		foreach ($empleados as $e){
+		$tabla = parent::thead("clientes", $head);
+		$clientes = Cliente::find();
+		foreach ($clientes as $c){
 			$s = Sucursal::findFirst("id = ".$e->sucursal);
 			$deshabilitar = "Deshabilitar";
-			if($e->estado == 0){
+			if($c->estado == 0){
 				$deshabilitar = "Habilitar";
 			}
-			$genero = "Masculino";
-			if($e->genero == "f"){
-				$genero = "Femenino";
+			$alquila = "S&iacute;";
+			if($c->alquila == 0){
+				$alquila = "No";
 			}
+			$m = Municipios::findFirst("municipio = $c->municipio");
 			$tabla = $tabla.parent::tbody([
-					$e->primer_nombre,
-					$e->primer_apellido,
-					$genero,
-					$e->fecha_ingreso,
-					$s->nombre,
-					$e->salario, 
-					parent::a(2, "cargarDatos('".$e->id."', '".$e->primer_nombre."', '".
-							$e->segundo_nombre."', '".$e->primer_apellido."', '".
-							$e->segundo_apellido."', '".$e->apellido_casada."', '".
-							$e->genero."', '".$e->fecha_nacimiento."', '".$e->fecha_nacimiento."', '".$e->direccion."', '".
-							$e->fecha_ingreso."', '".$e->fecha_ingreso."', '".$e->sucursal."', '".$e->salario."', '".
-							$e->dui."', '".$e->nit."', '".$e->isss."', '".$e->afp."', '".
-							$e->afpnum."')", "Editar")." | ".
-					parent::a(1, "empleado/deshabilitar", $deshabilitar, [["id", $e->id]])
+					$c->nombre,
+					$c->documento,
+					$m,
+					$alquila,
+					$c->trabajo,
+					$c->sueldo,
+					$c->telOficina,
+					parent::a(2, "cargarDatos('".$c->id."', '".$c->nombre."', '".$c->tipodoc."', '".
+							$c->documento."', '".$c->fexpedicion."', '".$c->lugarExpedicion."', '".$c->direccion."', '".
+							$m->departamento."', '".$m->id."', '".$c->alquila."', '".$c->propietario."', '".
+							$c->trabajo."', '".$c->areaTrab."', '".$c->cargo."', '".$c->fdesde."', '".
+							$c->sueldo."', '".$c->telOficina."')", "Editar")." | ".
+					parent::a(1, "cliente/deshabilitar", $deshabilitar, [["id", $c->id]])
 			]);
 		}		
 		
 		//js
-		$fields = ["id", "pNombre", "sNombre", "pApellido", "sApellido", "aCasada", "genero",
-				"fNac", "fNac2", "dir", "fIngreso", "fIngreso2", "suc", "salario", "dui", "nit", "isss", "afp", "nafp"];
+		$fields = ["id", "nombre", "tipoDoc", "doc", "expedicion", "lugar", "dir", "dept", "muni", "alquila", 
+				"propietario", "trabajo", "area", "cargo", "fdesde", "sueldo", "tofic"];
 		$otros = "";
-		$jsBotones = ["form1", "empleado/edit", "empleado/index"];
+		$jsBotones = ["form1", "cliente/edit", "cliente/index"];
 		
-		parent::view("Empleados", $form, $tabla, [$fields, $otros, $jsBotones]);
+		parent::view("Clientes", $form, $tabla, [$fields, $otros, $jsBotones]);
 	}
 	
 	public function guardarAction(){
@@ -201,6 +201,19 @@ class ClienteController extends ControllerBase
 			parent::msg("Ocurri&oacute; un error durante la transacci&oacute;n");
 			parent::forward("empleado", "index");
 		}
+	}
+	
+	public function listMunicipioAction()
+	{
+		$dept = parent::gPost("dept");
+		//$muni = Municipios::find("departamento = $dept");
+		//$sel = parent::elemento("sdb", ["muni", $muni, ["id", "nombre"]], "Municipio");
+		$select = $this->tag->select(array("muni",
+				Municipios::find("departamento = $dept"),
+				"using" => array("id", "nombre"), "class" => "form-control", "id" => "muni"));
+		$response = ['select' => $select, 'dept' => $dept];
+		return parent::sendJson($response);
+	
 	}
 
 }

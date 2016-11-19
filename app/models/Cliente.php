@@ -104,6 +104,12 @@ class Cliente extends \Phalcon\Mvc\Model
      * @var string
      */
     public $estado;
+    
+    /**
+     *
+     * @var $integer
+     */
+    public $tipodoc;
 
     /**
      * Initialize method for model.

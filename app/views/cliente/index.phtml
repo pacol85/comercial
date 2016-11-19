@@ -2,7 +2,17 @@
 	$(document).ready(function() {
 		$('#clientes').DataTable();			
 		$('.edit').hide();
-			
+		$('#dept').change(function() {
+			$.ajax({
+				type: "POST",
+				url: "cliente/listMunicipio", 
+				data: {dept: $('#dept').val()},
+				dataType: "json",
+				success: function(result){
+					var jsondata = jQuery.parseJSON(JSON.stringify(result)); 
+					$("#mdiv").html(jsondata.select);
+				}});
+		});
 	} );
 	<?php echo $this->view->js;?>
 </script>
