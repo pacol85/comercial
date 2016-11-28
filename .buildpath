@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <buildpath>
 	<buildpathentry kind="src" path="app"/>
-	<buildpathentry kind="src" path="DataTables"/>
 	<buildpathentry kind="src" path="public"/>
 	<buildpathentry external="true" kind="lib" path="C:/phalcon-tools/ide/2.0.9"/>
 	<buildpathentry kind="con" path="org.eclipse.php.core.LANGUAGE"/>

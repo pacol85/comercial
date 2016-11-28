@@ -10,6 +10,6 @@
     "require": {
     	"phpoffice/phpexcel": "1.8.1",
     	"dompdf/dompdf": "0.7.0",
-    	"vanchelo/phalcon-mailer": "~2.0"
+    	"dfridrich/mortage": "1.0.1"
     }
 }

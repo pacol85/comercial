@@ -20,6 +20,11 @@ try {
      * Read services
      */
     include APP_PATH . "/app/config/services.php";
+    
+    /**
+     * Composer libraries
+     */
+    include APP_PATH . "/vendor/autoload.php";
 
     /**
      * Handle the request

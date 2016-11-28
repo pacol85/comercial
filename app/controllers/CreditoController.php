@@ -1,10 +1,10 @@
 <?php
-class ClienteController extends ControllerBase
+class CreditoController extends ControllerBase
 {
 
-	public function indexAction()
+	public function indexAction($cid)
 	{
-		parent::limpiar();
+		//parent::limpiar();
 		$sucursal = Sucursal::find("estado = 1");
 		$dept = Departamentos::find();
 		$d = $dept->getFirst();
@@ -12,68 +12,49 @@ class ClienteController extends ControllerBase
 		//["ls", ["municipio", "municipios('ajax/municipios')"], "Municipio"],
 		
 		$campos = [
-				["t", ["nombre"], "Nombre Completo"],
-				["sel", ["tipoDoc", ["1" => "DUI", "2" => "NIT"]], "Tipo Documento"],
-				["t", ["doc"], "Documento"],
-				["d", ["expedicion"], "Fecha Expedici&oacute;n"],
-				["t", ["lugar"], "Lugar Expedici&oacute;n"],
-				["t", ["dir"], "Direcci&oacute;n"],
-				["sdb", ["dept", $dept, ["id", "nombre"]], "Departamento"],
-				["sdb", ["muni", $muni, ["id", "nombre"]], "Municipio", "mdiv"],
-				["h", ["mid"], ""],
-				["sel", ["alquila", ["1" => "S&iacute;", "0" => "No"]], "Alquila"],
-				["t", ["propietario"], "Propietario"],
-				["t", ["trabajo"], "Trabajo"],
-				["t", ["area"], "Area de trabajo"],
-				["t", ["cargo"], "Cargo"],
-				["t", ["jefe"], "Jefe"],
-				["d", ["fdesde"], "Desde"],
-				["m", ["sueldo", 0], "Sueldo"],
-				["t", ["tofic"], "Tel&eacute;fono Oficina"],
+				["m", ["monto", 0], "Monto"],
+				["d", ["fsolicitud"], "Fecha Solicitud"],
+				["d", ["fadquisicion"], "Fecha Adquisici&oacute;n"],
+				["d", ["fcancelacion"], "Fecha Cancelaci&oacute;n"],
+				["m", ["cuota", 0], "Cuota Base"],
+				["m", ["interes", 0], "Inter&eacute;s"],
+				["m", ["prima", 0], "Prima"],
+				["t", ["fiador"], "Fiador"],
+				["t", ["pariente"], "Pariente"],
+				["t", ["amigo"], "Amigo"],
 				["h", ["id"], ""],
-				["s", [""], "Guardar"]	
+				["s", [""], "Guardar Credito"]	
 		];		
-		$form = parent::form($campos, "cliente/guardar", "form1");
+		$form = parent::form($campos, "credito/guardar", "form1");
 		
-		$head = ["Nombre", "Documento", "Municipio", "Alquila", "Trabajo",
-				"Sueldo", "Tel.", "Acciones"				
+		$head = ["Id", "Monto", "Adquisici&oacute;n", "Cancelaci&oacute;n", "Cuota",
+				"Inter&eacute;s", "Prima", "Acciones"				
 		];
-		$tabla = parent::thead("clientes", $head);
-		$clientes = Cliente::find();
-		foreach ($clientes as $c){
-			$deshabilitar = "Deshabilitar";
-			if($c->estado == 0){
-				$deshabilitar = "Habilitar";
-			}
-			$alquila = "S&iacute;";
-			if($c->alquila == 0){
-				$alquila = "No";
-			}
-			$m = Municipios::findFirst("id = $c->municipio");
+		$tabla = parent::thead("credito", $head);
+		$creds = CreditoXCliente::find("cliente = $cid");
+		foreach ($creds as $c){
 			$tabla = $tabla.parent::tbody([
-					$c->nombre,
-					$c->documento,
-					$m->nombre,
-					$alquila,
-					$c->trabajo,
-					$c->sueldo,
-					$c->telOficina,
-					parent::a(2, "cargarDatos('".$c->id."', '".$c->nombre."', '".$c->tipodoc."', '".
-							$c->documento."', '".$c->fexpedicion."', '".$c->lugarExpedicion."', '".$c->direccion."', '".
-							$m->departamento."', '".$m->id."', '".$c->alquila."', '".$c->propietario."', '".
-							$c->trabajo."', '".$c->areaTrab."', '".$c->cargo."', '".$c->jefe."', '".$c->fdesde."', '".
-							$c->sueldo."', '".$c->telOficina."')", "Editar")." | ".
-					parent::a(1, "credito/index/$c->id", "Cr&eacute;ditos")//, [["id", $c->id]])
+					$c->id,
+					$c->monto,
+					$c->fecha_adquisicion,
+					$c->fecha_cancelacion, 
+					$c->cuotaBase, 
+					$c->interes, 
+					$c->prima,
+					parent::a(2, "cargarDatos('".$c->id."', '".$c->monto."', '".$c->fsolicitud."', '".
+							$c->fecha_adquisicion."', '".$c->fecha_cancelacion."', '".$c->cuotaBase."', '".$c->interes."', '".
+							$c->prima."')", "Editar")." | ".
+					parent::a(1, "cuotas/cargar/$c->id", "Cuotas")
 			]);
 		}		
 		
 		//js
-		$fields = ["id", "nombre", "tipoDoc", "doc", "expedicion", "lugar", "dir", "dept", "muni", "alquila", 
-				"propietario", "trabajo", "area", "cargo", "jefe", "fdesde", "sueldo", "tofic"];
+		$fields = ["id", "monto", "fsolicitud", "fadquisicion", "fcancelacion", "cuota", "interes", "prima"];
 		$otros = "";
-		$jsBotones = ["form1", "cliente/edit", "cliente/index"];
+		$jsBotones = ["form1", "credito/edit/$cid", "credito/cargar/$cid"];
+		$client = Cliente::findFirst($cid);
 		
-		parent::view("Clientes", $form, $tabla, [$fields, $otros, $jsBotones]);
+		parent::view("Cr&eacute;ditos de Cliente: $client->nombre", $form, $tabla, [$fields, $otros, $jsBotones]);
 	}
 	
 	public function guardarAction(){

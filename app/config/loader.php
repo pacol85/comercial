@@ -9,7 +9,5 @@ $loader->registerDirs(
     array(
         	$config->application->controllersDir,
         	$config->application->modelsDir,
-    		$config->application->libraryDir."funciones.php",
-    		$config->application->libraryDir."PHPExcel-1.8/Classes/"
     )
 )->register();

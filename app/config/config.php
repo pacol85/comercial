@@ -17,9 +17,8 @@ return new \Phalcon\Config(array(
         'migrationsDir'  => APP_PATH . '/app/migrations/',
         'viewsDir'       => APP_PATH . '/app/views/',
         'pluginsDir'     => APP_PATH . '/app/plugins/',
-        'libraryDir'     => APP_PATH . '/app/library/',
         'cacheDir'       => APP_PATH . '/app/cache/',
-    	'dompdfDir'      => APP_PATH . '/app/library/dompdf/',
-        'baseUri'        => '/comercial/',
+    	'baseUri'        => '/comercial/',
+    	'vendor'		 => APP_PATH . '/vendor/',
     )
 ));
