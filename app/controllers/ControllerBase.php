@@ -162,13 +162,24 @@ class ControllerBase extends Controller {
 						) );
 						break;
 					case "d" :
-						$elem = $elem . $this->tag->dateField ( array (
-								"$n[0]",
-								"min" => "0",
-								"size" => 30,
-								"class" => "form-control date datepicker",
-								"id" => "$n[0]" 
-						) );
+						if (count ( $n ) > 1) {
+							$elem = $elem . $this->tag->dateField ( array (
+									"$n[0]",
+									"min" => "0",
+									"size" => 30,
+									"class" => "form-control date datepicker",
+									"id" => "$n[0]",
+									"value" => $n[1]
+									));
+						}else{
+							$elem = $elem . $this->tag->dateField ( array (
+									"$n[0]",
+									"min" => "0",
+									"size" => 30,
+									"class" => "form-control date datepicker",
+									"id" => "$n[0]"
+									));
+						}
 						break;
 					case "sdb" :
 						if (count ( $n ) > 3) {
@@ -356,11 +367,20 @@ class ControllerBase extends Controller {
 	/*
 	 * Funcion para el dispatcher Forward
 	 */
-	public function forward($controller, $action) {
-		return $this->dispatcher->forward ( array (
-				"controller" => $controller,
-				"action" => $action 
-		) );
+	public function forward($controller, $action, $params = []) {
+		if(count($params)>0){
+			return $this->dispatcher->forward ( array (
+					"controller" => $controller,
+					"action" => $action,
+					"params" => $params
+			) );
+		}else{
+			return $this->dispatcher->forward ( array (
+					"controller" => $controller,
+					"action" => $action
+			) );
+		}
+		
 	}
 	
 	/*

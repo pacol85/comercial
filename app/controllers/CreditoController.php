@@ -1,4 +1,6 @@
 <?php
+use Defr\LoanRequest;
+
 class CreditoController extends ControllerBase
 {
 
@@ -10,22 +12,17 @@ class CreditoController extends ControllerBase
 		$d = $dept->getFirst();
 		$muni = Municipios::find("departamento = $d->id");
 		//["ls", ["municipio", "municipios('ajax/municipios')"], "Municipio"],
-		
+		$hoy = parent::fechaHoy(false);
 		$campos = [
 				["m", ["monto", 0], "Monto"],
-				["d", ["fsolicitud"], "Fecha Solicitud"],
-				["d", ["fadquisicion"], "Fecha Adquisici&oacute;n"],
-				["d", ["fcancelacion"], "Fecha Cancelaci&oacute;n"],
-				["m", ["cuota", 0], "Cuota Base"],
+				["d", ["fsolicitud", $hoy], "Fecha Solicitud"],
 				["m", ["interes", 0], "Inter&eacute;s"],
 				["m", ["prima", 0], "Prima"],
-				["t", ["fiador"], "Fiador"],
-				["t", ["pariente"], "Pariente"],
-				["t", ["amigo"], "Amigo"],
+				["m", ["cuotas", 0], "Cuotas"],
 				["h", ["id"], ""],
-				["s", [""], "Guardar Credito"]	
+				["s", [""], "Solicitud Inicial"]	
 		];		
-		$form = parent::form($campos, "credito/guardar", "form1");
+		$form = parent::form($campos, "credito/guardar/$cid", "form1");
 		
 		$head = ["Id", "Monto", "Adquisici&oacute;n", "Cancelaci&oacute;n", "Cuota",
 				"Inter&eacute;s", "Prima", "Acciones"				
@@ -42,63 +39,47 @@ class CreditoController extends ControllerBase
 					$c->interes, 
 					$c->prima,
 					parent::a(2, "cargarDatos('".$c->id."', '".$c->monto."', '".$c->fsolicitud."', '".
-							$c->fecha_adquisicion."', '".$c->fecha_cancelacion."', '".$c->cuotaBase."', '".$c->interes."', '".
-							$c->prima."')", "Editar")." | ".
+							$c->interes."', '".$c->prima."', '".$c->cuotaBase."')", "Editar")." | ".
 					parent::a(1, "cuotas/cargar/$c->id", "Cuotas")
 			]);
 		}		
 		
 		//js
-		$fields = ["id", "monto", "fsolicitud", "fadquisicion", "fcancelacion", "cuota", "interes", "prima"];
+		$fields = ["id", "monto", "fsolicitud", "interes", "prima"];
 		$otros = "";
 		$jsBotones = ["form1", "credito/edit/$cid", "credito/cargar/$cid"];
 		$client = Cliente::findFirst($cid);
 		
 		parent::view("Cr&eacute;ditos de Cliente: $client->nombre", $form, $tabla, [$fields, $otros, $jsBotones]);
+		/*
+		$loan = new LoanRequest(5000, 35, 12);
+		$result = $loan->calculate();
+		parent::msg($result->getMonthlyPayment());
+		*/		
 	}
 	
-	public function guardarAction(){
-		if(parent::vPost("nombre") && parent::vPost("doc") && parent::vPost("dir") && parent::vPost("trabajo") &&
-				parent::vPost("fdesde") && parent::vPost("sueldo")){
-			$doc = parent::gPost("doc");
-			$nombre = parent::gPost("nombre");
-			$cli = Cliente::find("documento like '$doc' or nombre like '$nombre'");
-			if(count($cli) > 0){
-				parent::msg("Los documentos ingresados equivalen a los de otro cliente ya existente");
-				return parent::forward("cliente", "index");
-			}
-			//crear nuevo cliente
-			$c = new Cliente();
-			$c->alquila = parent::gPost("alquila");
-			$c->areaTrab = parent::gPost("area");
-			$c->cargo = parent::gPost("cargo");
-			$c->direccion = parent::gPost("dir");
-			$c->documento = parent::gPost("doc");
-			$c->estado = 1;
-			$c->fdesde = parent::gPost("fdesde");
-			$c->fexpedicion = parent::gPost("expedicion");
-			$c->jefe = parent::gPost("jefe");
-			$c->lugarExpedicion = parent::gPost("lugar");
-			$c->municipio = parent::gPost("muni");
-			$c->trabajo = parent::gPost("trabajo");
-			$c->nombre = parent::gPost("nombre");
-			if($c->alquila == 1){
-				$c->propietario = parent::gPost("propietario");
-			}else{
-				$c->propietario = $c->nombre;
-			}			
-			$c->sueldo = parent::gPost("sueldo");
-			$c->telOficina = parent::gPost("tofic");
-			$c->tipodoc = parent::gPost("tipoDoc");
+	public function guardarAction($cid){
+		if(parent::vPost("monto") && parent::vPost("fsolicitud") && parent::vPost("interes") && parent::vPost("prima") &&
+				parent::vPost("cuotas")){
+			$c = new CreditoXCliente();
+			$c->cliente = $cid;
+			$c->fsolicitud = parent::gPost("fsolicitud");
+			$c->interes = parent::gPost("interes");
+			$c->monto = parent::gPost("monto");
+			$c->prima = parent::gPost("prima");
+			
+			$loan = new LoanRequest($c->monto, $c->interes, parent::gPost("cuotas"));
+			$result = $loan->calculate();
+			$c->cuotaBase = $result->getMonthlyPayment();
 			if($c->save()){
-				parent::msg("El cliente fue creado exitosamente", "s");
+				parent::msg("El cr&eacute;dito fue creado exitosamente", "s");
 			}else{
 				parent::msg("Ocurri&oacute; un error durante la transacci&oacute;n");
 			}
 		}else{
 			parent::msg("Aseg&uacute;rese de llenar todos los campos");
 		}
-		parent::forward("cliente", "index");
+		parent::forward("credito", "index", [$cid]);
 	}
 	
 	public function editAction(){
