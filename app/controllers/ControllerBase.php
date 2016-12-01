@@ -544,4 +544,43 @@ class ControllerBase extends Controller {
 	public function limpiar(){
 		$this->tag->resetInput();
 	}
+	
+	/**
+	 * funcion para sacar día de una fecha
+	 */
+	public function gDay($fecha){
+		$date = DateTime::createFromFormat("Y-m-d", $fecha);
+		return $date->format("d");
+	}
+	
+	/**
+	 * funcion para sacar mes de una fecha
+	 */
+	public function gMonth($fecha){
+		$date = DateTime::createFromFormat("Y-m-d", $fecha);
+		return $date->format("m");
+	}
+	
+	/**
+	 * fecha + o - dias (d), meses (m), anios (y). Version 2
+	 */
+	public function datePlus2($date, $var, $option="d"){
+		//$date = date("Y-m-d");
+		$resultado = $this->fechaHoy(false);
+		switch ($option) {
+			case "m":
+				$mod_date = strtotime($date.$var." months");
+				$resultado = date("Y-m-d",$mod_date);
+				break;
+			case "y":
+				$mod_date = strtotime($date.$var." years");
+				$resultado = date("Y-m-d",$mod_date);
+				break;
+			default:
+				$mod_date = strtotime($date.$var." days");
+				$resultado = date("Y-m-d",$mod_date);
+				break;
+		}
+		return $resultado;
+	}
 }
