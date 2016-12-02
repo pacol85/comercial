@@ -65,7 +65,7 @@ class CreditoController extends ControllerBase
 				parent::msg("El cr&eacute;dito fue creado exitosamente", "s");
 
 				//crear cuotas ya sea que se apruebe o no, se modificará cada vez que se haga una modificacion en general
-				for ($i = 1; $i >= $cuotas; $i++){
+				for ($i = 1; $i <= $cuotas; $i++){
 					$cuota = new Cuotas();
 					$cuota->credito = $c->id;
 					$cuota->fechaPago = parent::datePlus2($c->fsolicitud, $i, "m");
@@ -91,12 +91,12 @@ class CreditoController extends ControllerBase
 				["m", ["prima", $cred->prima], "Prima"],
 				["m", ["cuotas", 0], "Cuotas"],
 				["h", ["id"], ""],
-				["s", [""], "Modificaci&oacute;n"]	
+				["s", [""], "Modificacion"]	
 		];		
 		$form = parent::form($campos, "credito/actualizar/$credId", "form1");
 		
 		$head = ["Cuota", "Fecha programada", "Monto", "Notas"];
-		$tabla = parent::thead("cuotas", $head);
+		$tabla = parent::thead("tcuota", $head);
 		$cuotas = Cuotas::find("credito = '$cred->id'");
 		$corr = 1;
 		foreach ($cuotas as $c){
@@ -106,12 +106,13 @@ class CreditoController extends ControllerBase
 					$c->monto,
 					$c->nota
 			]);
+			$corr++;
 		}		
 		
 		//js
 		$fields = ["id", "monto", "fsolicitud", "interes", "prima"];
 		$otros = "";
-		$jsBotones = ["form1", "credito/edit/$cid", "credito/cargar/$cid"];
+		$jsBotones = ["form1", "credito/edit/", "credito/cargar/"];
 		
 		parent::view("Informaci&oacute;n de cr&eacute;dito No. $cred->id", $form, $tabla, [$fields, $otros, $jsBotones]);
 	}
