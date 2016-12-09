@@ -1,10 +1,10 @@
 <?php
 use Defr\LoanRequest;
 
-class CreditoController extends ControllerBase
+class CuotasController extends ControllerBase
 {
 
-	public function indexAction($cid)
+	public function indexAction($cred)
 	{
 		parent::limpiar();
 		$hoy = parent::fechaHoy(false);
@@ -19,22 +19,24 @@ class CreditoController extends ControllerBase
 		];		
 		$form = parent::form($campos, "credito/guardar/$cid", "form1");
 		
-		$head = ["Id", "Monto", "Adquisici&oacute;n", "Cancelaci&oacute;n", "Cuota",
-				"Inter&eacute;s", "Prima", "Acciones"				
-		];
-		$tabla = parent::thead("credito", $head);
-		$creds = CreditoXCliente::find("cliente = $cid");
-		foreach ($creds as $c){
+		$head = ["#", "Monto", "Fecha", "Recibo", "Pormenores", "Acciones"];
+		$tabla = parent::thead("cuotas", $head);
+		$cuotas = Cuotas::find("credito = $cred");
+		$corr = 1;
+		foreach ($cuotas as $c){
+			$recibo = Recibos::findFirst("cuota = $c->id");
+			$pendiente = "Pendiente de Pago";
+			if($recibo != null){
+				$pendiente = $recibo->numero; 
+			}
 			$tabla = $tabla.parent::tbody([
-					$c->id,
+					$corr,
 					$c->monto,
-					$c->fecha_adquisicion,
-					$c->fecha_cancelacion, 
-					$c->cuotaBase, 
-					$c->interes, 
-					$c->prima,
+					$c->fechaPago,
+					$pendiente,
+					$c->pormenores,
 					parent::a(1, "credito/editar/$c->id", "Editar")." | ".
-					parent::a(1, "cuotas/index/$c->id", "Cuotas")
+					parent::a(1, "cuotas/cargar/$c->id", "Cuotas")
 			]);
 		}		
 		
@@ -42,9 +44,9 @@ class CreditoController extends ControllerBase
 		$fields = ["id", "monto", "fsolicitud", "interes", "prima"];
 		$otros = "";
 		$jsBotones = ["form1", "credito/edit/$cid", "credito/cargar/$cid"];
-		$client = Cliente::findFirst($cid);
 		
-		parent::view("Cr&eacute;ditos de Cliente: $client->nombre", $form, $tabla, [$fields, $otros, $jsBotones]);				
+		$credito = CreditoXCliente::findFirst("id = $cred");
+		parent::view("Cuotas del Cr&eacute;dito: $credito->cuenta", "", $tabla, ["", $otros, $jsBotones]);				
 	}
 	
 	public function guardarAction($cid){
