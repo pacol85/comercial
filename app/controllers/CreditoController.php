@@ -157,6 +157,196 @@ class CreditoController extends ControllerBase
 		return parent::sendJson($response);
 	
 	}
+	
+	function subidaDarioAction(){
+		$file = "c:\TEMP\dario.xlsx";
+		$inputFileType = PHPExcel_IOFactory::identify($file);
+		$objReader = PHPExcel_IOFactory::createReader($inputFileType);
+		$archivo = $objReader->load($file);
+		set_time_limit(300);
+		$sheet = $archivo -> setActiveSheetIndex(0);
+		$highestRow = $sheet->getHighestRow();
+		$highestColumn = $sheet->getHighestColumn();
+			
+		$titulo = true;
+		$fila = 0;
+		for ($row = 1; $row <= $highestRow; $row++){
+			//  Read a row of data into an array
+			$rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row,
+					NULL,
+					TRUE,
+					FALSE);
+			foreach ($rowData as $col){
+					
+				if ($titulo == true){
+					$titulo = false;
+					continue;
+				}
+				else{
+					
+					//crear cliente
+					$client = new Cliente();
+					$client->documento = "NA".$col[0]; //se crearan con NA seguido del numero de cuenta temporalmente
+					$client->estado = 1;
+					$client->municipio = 2; //Se asume San Salvador
+					$client->nombre = $col[2];
+					$client->save();
+					
+					//crear Item (producto)
+					$prod = new Item();
+					$prod->codigo = $col[0]; //para mientras se creará el artículo con el código de cuenta
+					$prod->descripcion = $col[3];
+					$prod->impuesto = 0;
+					$prod->marca = "NA";
+					$prod->modelo = "NA";
+					$prod->total = 0;
+					$prod->valor = $col[5]/1.035;
+					$prod->save();
+					
+					//crear credito
+					$cred = new CreditoXCliente();
+					$cred->cuenta = $col[0];
+					$cred->fecha_adquisicion = parent::fechaExcel($col[7]);
+					$cred->cuotaBase = $col[5]/($col[4] + 1);
+					$cred->fsolicitud = parent::fechaExcel($col[1]);
+					$cred->interes = 3.5;
+					$cred->monto = $col[5];
+					$cred->prima = $col[8];
+					$cred->sucursal = 2; //sucursal Darío
+					$cred->cliente = $client->id;
+					$cred->save();
+					
+					
+					//crear Cuotas en blanco
+					$cuotas = $col[4];
+					$off = 9;
+					$size = count($col);
+					for ($i = 1; $i <= $cuotas; $i++){
+						$cuota = new Cuotas();
+						$cuota->credito = $cred->id;							
+						if(($i*3 + $off) <= $size){
+							$pos = (($i *3) + $off) - 1;
+							$cuota->fechaPago = parent::fechaExcel($col[$pos]);
+							$cuota->monto = $col[$pos +1];							
+							$cuota->save();
+							
+							//crear recibo
+							$recibo = new Recibos();
+							$recibo->cuota = $cuota->id;
+							$recibo->fpago = $cuota->fechaPago;
+							$recibo->numero = $col[$pos-1];
+							$recibo->save();
+						}else{
+							$cuota->fechaPago = parent::datePlus2($cred->fsolicitud, $i, "m");
+							$cuota->monto = 0;
+							$cuota->save();
+						}
+						
+					}
+					
+					
+				}
+					
+			}
+		}
+		parent::msg("Termin&oacute; subida de excel Comercial Dario", "n");
+		parent::forward("inicio", "index");
+	}
+	
+	function subidaAngelAction(){
+		$file = "c:\TEMP\angel.xlsx";
+		$inputFileType = PHPExcel_IOFactory::identify($file);
+		$objReader = PHPExcel_IOFactory::createReader($inputFileType);
+		$archivo = $objReader->load($file);
+		set_time_limit(300);
+		$sheet = $archivo -> setActiveSheetIndex(0);
+		$highestRow = $sheet->getHighestRow();
+		$highestColumn = $sheet->getHighestColumn();
+			
+		$titulo = true;
+		$fila = 0;
+		for ($row = 1; $row <= $highestRow; $row++){
+			//  Read a row of data into an array
+			$rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row,
+					NULL,
+					TRUE,
+					FALSE);
+			foreach ($rowData as $col){
+					
+				if ($titulo == true){
+					$titulo = false;
+					continue;
+				}
+				else{
+						
+					//crear cliente
+					$client = new Cliente();
+					$client->documento = "NA".$col[0]; //se crearan con NA seguido del numero de cuenta temporalmente
+					$client->estado = 1;
+					$client->municipio = 2; //Se asume San Salvador
+					$client->nombre = $col[2];
+					$client->save();
+						
+					//crear Item (producto)
+					$prod = new Item();
+					$prod->codigo = $col[0]; //para mientras se creará el artículo con el código de cuenta
+					$prod->descripcion = $col[3];
+					$prod->impuesto = 0;
+					$prod->marca = "NA";
+					$prod->modelo = "NA";
+					$prod->total = 0;
+					$prod->valor = $col[5]/1.035;
+					$prod->save();
+						
+					//crear credito
+					$cred = new CreditoXCliente();
+					$cred->cuenta = $col[0];
+					$cred->fecha_adquisicion = parent::fechaExcel($col[7]);
+					$cred->cuotaBase = $col[5]/($col[4] + 1);
+					$cred->fsolicitud = parent::fechaExcel($col[1]);
+					$cred->interes = 3.5;
+					$cred->monto = $col[5];
+					$cred->prima = $col[8];
+					$cred->sucursal = 1; //sucursal El Angel
+					$cred->cliente = $client->id;
+					$cred->save();
+						
+						
+					//crear Cuotas en blanco
+					$cuotas = $col[4];
+					$off = 9;
+					$size = count($col);
+					for ($i = 1; $i <= $cuotas; $i++){
+						$cuota = new Cuotas();
+						$cuota->credito = $cred->id;
+						if(($i*3 + $off) <= $size){
+							$pos = (($i *3) + $off) - 1;
+							$cuota->fechaPago = parent::fechaExcel($col[$pos]);
+							$cuota->monto = $col[$pos +1];
+							$cuota->save();
+								
+							//crear recibo
+							$recibo = new Recibos();
+							$recibo->cuota = $cuota->id;
+							$recibo->fpago = $cuota->fechaPago;
+							$recibo->numero = $col[$pos-1];
+							$recibo->save();
+						}else{
+							$cuota->fechaPago = parent::datePlus2($cred->fsolicitud, $i, "m");
+							$cuota->monto = 0;
+							$cuota->save();
+						}
+	
+					}
+						
+						
+				}
+					
+			}
+		}
+		parent::msg("Termin&oacute; subida de excel Comercial El Angel", "n");
+		parent::forward("inicio", "index");
+	}
 
 }
 ?>

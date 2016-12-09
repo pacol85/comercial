@@ -1,6 +1,6 @@
 <?php
 
-class Cuotas extends \Phalcon\Mvc\Model
+class Recibos extends \Phalcon\Mvc\Model
 {
 
     /**
@@ -13,46 +13,26 @@ class Cuotas extends \Phalcon\Mvc\Model
      *
      * @var string
      */
-    public $monto;
+    public $numero;
 
     /**
      *
      * @var string
      */
-    public $fechaPago;
+    public $cuota;
 
     /**
      *
      * @var string
      */
-    public $pormenores;
-
-    /**
-     *
-     * @var string
-     */
-    public $nota;
-
-    /**
-     *
-     * @var string
-     */
-    public $empleado;
-
-    /**
-     *
-     * @var string
-     */
-    public $credito;
+    public $fpago;
 
     /**
      * Initialize method for model.
      */
     public function initialize()
     {
-        $this->hasMany('id', 'Recibos', 'cuota', array('alias' => 'Recibos'));
-        $this->belongsTo('empleado', 'Empleado', 'id', array('alias' => 'Empleado'));
-        $this->belongsTo('credito', 'CreditoXCliente', 'id', array('alias' => 'CreditoXCliente'));
+        $this->belongsTo('cuota', 'Cuotas', 'id', array('alias' => 'Cuotas'));
     }
 
     /**
@@ -62,14 +42,14 @@ class Cuotas extends \Phalcon\Mvc\Model
      */
     public function getSource()
     {
-        return 'cuotas';
+        return 'recibos';
     }
 
     /**
      * Allows to query a set of records that match the specified conditions
      *
      * @param mixed $parameters
-     * @return Cuotas[]
+     * @return Recibos[]
      */
     public static function find($parameters = null)
     {
@@ -80,7 +60,7 @@ class Cuotas extends \Phalcon\Mvc\Model
      * Allows to query the first record that match the specified conditions
      *
      * @param mixed $parameters
-     * @return Cuotas
+     * @return Recibos
      */
     public static function findFirst($parameters = null)
     {

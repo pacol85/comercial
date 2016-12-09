@@ -88,6 +88,18 @@ class CreditoXCliente extends \Phalcon\Mvc\Model
     public $amigo;
 
     /**
+     *
+     * @var string
+     */
+    public $sucursal;
+
+    /**
+     *
+     * @var string
+     */
+    public $cuenta;
+
+    /**
      * Initialize method for model.
      */
     public function initialize()
@@ -97,6 +109,7 @@ class CreditoXCliente extends \Phalcon\Mvc\Model
         $this->belongsTo('fiador', 'Fiador', 'id', array('alias' => 'Fiador'));
         $this->belongsTo('pariente', 'Referencia', 'id', array('alias' => 'Referencia'));
         $this->belongsTo('amigo', 'Referencia', 'id', array('alias' => 'Referencia'));
+        $this->belongsTo('sucursal', 'Sucursal', 'id', array('alias' => 'Sucursal'));
     }
 
     /**
