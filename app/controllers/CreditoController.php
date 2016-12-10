@@ -28,7 +28,7 @@ class CreditoController extends ControllerBase
 		$creds = CreditoXCliente::find("cliente = $cid");
 		foreach ($creds as $c){
 			$suc = Sucursal::findFirst("id = $c->sucursal");
-			$cuotas = Cuotas::find("credito = $c->id");
+			$cuotas = Cuotas::find("credito = $c->id and prima = 0");
 			$totCuotas = count($cuotas);
 			$saldo = $c->monto - $c->prima;
 			foreach ($cuotas as $cuot){

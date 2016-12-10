@@ -1,6 +1,6 @@
 <?php
 
-class EstadoClienteController extends ControllerBase
+class EstadoclienteController extends ControllerBase
 {
 
     public function indexAction()
@@ -20,16 +20,16 @@ class EstadoClienteController extends ControllerBase
 					$r->estado,
 					$r->descripcion,
 					parent::a(2, "cargarDatos('".$r->id."','".$r->estado."','".$r->descripcion."');", "Editar")." | ".
-					parent::a(1, "estadoCliente/eliminar", "Eliminar", [["id", $r->id]])
+					parent::a(1, "estadocliente/eliminar", "Eliminar", [["id", $r->id]])
 			]);
 		}
 		
 		//js
 		$fields = ["id", "estado", "desc"];
 		$otros = "";
-		$jsBotones = ["form1", "estadoCliente/edit", "estadoCliente"];
+		$jsBotones = ["form1", "estadocliente/edit", "estadoCliente"];
 		
-    	$form = parent::form($campos, "estadoCliente/guardar", "form1");
+    	$form = parent::form($campos, "estadocliente/guardar", "form1");
     	$tabla = parent::ftable($tabla);
     
     	parent::view("Estado de cliente", $form, $tabla, [$fields, $otros, $jsBotones]);
@@ -48,7 +48,7 @@ class EstadoClienteController extends ControllerBase
     	}else{
     		parent::msg("El campo estado no puede quedar en blanco");
     	}
-    	parent::forward("estadoCliente", "index");
+    	parent::forward("estadocliente", "index");
     }
     
     public function eliminarAction(){
@@ -64,7 +64,7 @@ class EstadoClienteController extends ControllerBase
     			parent::msg("","db");
     		}
     	}    	
-    	parent::forward("estadoCliente", "index");
+    	parent::forward("estadocliente", "index");
     }
 
     public function editAction(){
@@ -80,7 +80,7 @@ class EstadoClienteController extends ControllerBase
     	}else{
     		parent::msg("Ocurri&oacute; un error al cargar el Estado de cliente");
     	}
-    	parent::forward("estadoCliente", "index");
+    	parent::forward("estadocliente", "index");
     }
 }
 

@@ -56,8 +56,9 @@ class CuotasController extends ControllerBase
 	public function pagarAction($cid, $corr){
 		$hoy = parent::fechaHoy(false);
 		$cuota = Cuotas::findFirst("id = $cid");
+		$cred = CreditoXCliente::findFirst("id = $cuota->credito");
 		$campos = [
-				["m", ["monto", $cuota->monto], "Monto"],
+				["m", ["monto", $cred->cuotaBase], "Monto"],
 				["d", ["fpago", $hoy], "Fecha Pago"],
 				["t", ["recibo"], "Recibo"],
 				["t", ["pormenores"], "Pormenores"],
@@ -66,13 +67,13 @@ class CuotasController extends ControllerBase
 		];
 		$form = parent::form($campos, "cuotas/actualizar/$cid/$corr", "form1");
 		
-		$cred = CreditoXCliente::findFirst("id = $cuota->credito");
+		
 		parent::view("Cuota No. $corr de Cr&eacute;dito No. $cred->cuenta", $form);
 	}
 	
 	public function actualizarAction($cid, $corr){
 		$cuota = Cuotas::findFirst("id = $cid");
-		if(parent::vPost("recibo")){
+		if(!parent::vPost("recibo")){
 			parent::msg("No se puede realizar un pago sin un Recibo");
 			return parent::forward("cuotas", "index", ["$cuota->credito"]);
 		}
@@ -88,7 +89,7 @@ class CuotasController extends ControllerBase
 			$recibo->fpago = $cuota->fechaPago;
 			$recibo->numero = parent::gPost("recibo");
 			if($recibo->save()){
-				parent::msg("Cuota $corr y Recibo $recibo->numero guardados exitosamente");			
+				parent::msg("Cuota $corr y Recibo $recibo->numero guardados exitosamente", "s");			
 			}else{
 				parent::msg("Ocurri&oacute; un error al crear el Recibo");
 			}
