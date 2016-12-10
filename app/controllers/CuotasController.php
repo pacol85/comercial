@@ -17,96 +17,29 @@ class CuotasController extends ControllerBase
 				["h", ["id"], ""],
 				["s", [""], "Solicitud Inicial"]	
 		];		
-		$form = parent::form($campos, "credito/guardar/$cid", "form1");
+		//$form = parent::form($campos, "credito/guardar/$cid", "form1");
 		
 		$head = ["#", "Monto", "Fecha", "Recibo", "Pormenores", "Acciones"];
 		$tabla = parent::thead("cuotas", $head);
-		$cuotas = Cuotas::find("credito = $cred");
+		$cuotas = Cuotas::find("credito = $cred and prima = 0");
 		$corr = 1;
 		foreach ($cuotas as $c){
 			$recibo = Recibos::findFirst("cuota = $c->id");
 			$pendiente = "Pendiente de Pago";
+			$pagar = parent::a(1, "cuotas/pagar/$c->id/$corr", "Pagar");
+			
 			if($recibo != null){
-				$pendiente = $recibo->numero; 
+				$pendiente = $recibo->numero;
+				$pagar = "";
 			}
+						
 			$tabla = $tabla.parent::tbody([
 					$corr,
 					$c->monto,
 					$c->fechaPago,
 					$pendiente,
 					$c->pormenores,
-					parent::a(1, "credito/editar/$c->id", "Editar")." | ".
-					parent::a(1, "cuotas/cargar/$c->id", "Cuotas")
-			]);
-		}		
-		
-		//js
-		$fields = ["id", "monto", "fsolicitud", "interes", "prima"];
-		$otros = "";
-		$jsBotones = ["form1", "credito/edit/$cid", "credito/cargar/$cid"];
-		
-		$credito = CreditoXCliente::findFirst("id = $cred");
-		parent::view("Cuotas del Cr&eacute;dito: $credito->cuenta", "", $tabla, ["", $otros, $jsBotones]);				
-	}
-	
-	public function guardarAction($cid){
-		if(parent::vPost("monto") && parent::vPost("fsolicitud") && parent::vPost("interes") && parent::vPost("prima") &&
-				parent::vPost("cuotas")){
-			$c = new CreditoXCliente();
-			$c->cliente = $cid;
-			$c->fsolicitud = parent::gPost("fsolicitud");
-			$c->interes = parent::gPost("interes");
-			$c->monto = parent::gPost("monto");
-			$c->prima = parent::gPost("prima");
-			$c->diaCorte = parent::gDay($c->fsolicitud);
-			$cuotas = parent::gPost("cuotas");
-			$loan = new LoanRequest($c->monto, $c->interes, $cuotas);
-			$result = $loan->calculate();
-			$c->cuotaBase = $result->getMonthlyPayment();
-			if($c->save()){
-				parent::msg("El cr&eacute;dito fue creado exitosamente", "s");
-
-				//crear cuotas ya sea que se apruebe o no, se modificará cada vez que se haga una modificacion en general
-				for ($i = 1; $i <= $cuotas; $i++){
-					$cuota = new Cuotas();
-					$cuota->credito = $c->id;
-					$cuota->fechaPago = parent::datePlus2($c->fsolicitud, $i, "m");
-					$cuota->monto = 0;
-					$cuota->save();
-				}
-			}else{
-				parent::msg("Ocurri&oacute; un error durante la transacci&oacute;n");
-			}
-		}else{
-			parent::msg("Aseg&uacute;rese de llenar todos los campos");
-		}
-		parent::forward("credito", "index", [$cid]);
-	}
-	
-	public function editarAction($credId){
-		$cred = CreditoXCliente::findFirst($credId);
-		$hoy = parent::fechaHoy(false);
-		$campos = [
-				["m", ["monto", $cred->monto], "Monto"],
-				["d", ["fsolicitud", $cred->fsolicitud], "Fecha Solicitud"],
-				["m", ["interes", $cred->interes], "Inter&eacute;s"],
-				["m", ["prima", $cred->prima], "Prima"],
-				["m", ["cuotas", 0], "Cuotas"],
-				["h", ["id"], ""],
-				["s", [""], "Modificacion"]	
-		];		
-		$form = parent::form($campos, "credito/actualizar/$credId", "form1");
-		
-		$head = ["Cuota", "Fecha programada", "Monto", "Notas"];
-		$tabla = parent::thead("tcuota", $head);
-		$cuotas = Cuotas::find("credito = '$cred->id'");
-		$corr = 1;
-		foreach ($cuotas as $c){
-			$tabla = $tabla.parent::tbody([
-					$corr,
-					$c->fechaPago,
-					$c->monto,
-					$c->nota
+					$pagar
 			]);
 			$corr++;
 		}		
@@ -114,9 +47,55 @@ class CuotasController extends ControllerBase
 		//js
 		$fields = ["id", "monto", "fsolicitud", "interes", "prima"];
 		$otros = "";
-		$jsBotones = ["form1", "credito/edit/", "credito/cargar/"];
+		//$jsBotones = ["form1", "credito/edit/$cid", "credito/cargar/$cid"];
 		
-		parent::view("Informaci&oacute;n de cr&eacute;dito No. $cred->id", $form, $tabla, [$fields, $otros, $jsBotones]);
+		$credito = CreditoXCliente::findFirst("id = $cred");
+		parent::view("Cuotas del Cr&eacute;dito: $credito->cuenta", "", $tabla);				
+	}
+	
+	public function pagarAction($cid, $corr){
+		$hoy = parent::fechaHoy(false);
+		$cuota = Cuotas::findFirst("id = $cid");
+		$campos = [
+				["m", ["monto", $cuota->monto], "Monto"],
+				["d", ["fpago", $hoy], "Fecha Pago"],
+				["t", ["recibo"], "Recibo"],
+				["t", ["pormenores"], "Pormenores"],
+				["t", ["nota"], "Nota"],
+				["s", [""], "Pagar"]
+		];
+		$form = parent::form($campos, "cuotas/actualizar/$cid/$corr", "form1");
+		
+		$cred = CreditoXCliente::findFirst("id = $cuota->credito");
+		parent::view("Cuota No. $corr de Cr&eacute;dito No. $cred->cuenta", $form);
+	}
+	
+	public function actualizarAction($cid, $corr){
+		$cuota = Cuotas::findFirst("id = $cid");
+		if(parent::vPost("recibo")){
+			parent::msg("No se puede realizar un pago sin un Recibo");
+			return parent::forward("cuotas", "index", ["$cuota->credito"]);
+		}
+		
+		$cuota->monto = parent::gPost("monto");
+		$cuota->fechaPago = parent::gPost("fpago");
+		$cuota->nota = parent::gPost("nota");
+		$cuota->pormenores = parent::gPost("pormenores");
+		if($cuota->update()){
+			//crear recibo
+			$recibo = new Recibos();
+			$recibo->cuota = $cuota->id;
+			$recibo->fpago = $cuota->fechaPago;
+			$recibo->numero = parent::gPost("recibo");
+			if($recibo->save()){
+				parent::msg("Cuota $corr y Recibo $recibo->numero guardados exitosamente");			
+			}else{
+				parent::msg("Ocurri&oacute; un error al crear el Recibo");
+			}
+		}else{
+			parent::msg("", "db");
+		}
+		return parent::forward("cuotas", "index", ["$cuota->credito"]);
 	}
 	
 	public function deshabilitarAction(){

@@ -44,6 +44,12 @@ class Cuotas extends \Phalcon\Mvc\Model
      * @var string
      */
     public $credito;
+    
+    /**
+     *
+     * @var int
+     */
+    public $prima;
 
     /**
      * Initialize method for model.

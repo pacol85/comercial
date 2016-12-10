@@ -8,7 +8,9 @@ class CreditoController extends ControllerBase
 	{
 		parent::limpiar();
 		$hoy = parent::fechaHoy(false);
+		$sucursales = Sucursal::find();
 		$campos = [
+				["sdb", ["suc", $sucursales, ["id", "nombre"]], "Sucursal"],
 				["m", ["monto", 0], "Monto"],
 				["d", ["fsolicitud", $hoy], "Fecha Solicitud"],
 				["m", ["interes", 0], "Inter&eacute;s"],
@@ -19,19 +21,31 @@ class CreditoController extends ControllerBase
 		];		
 		$form = parent::form($campos, "credito/guardar/$cid", "form1");
 		
-		$head = ["Id", "Monto", "Adquisici&oacute;n", "Cancelaci&oacute;n", "Cuota",
-				"Inter&eacute;s", "Prima", "Acciones"				
+		$head = ["Id", "Sucursal", "Saldo Ini", "Adquisici&oacute;n", "Cancelaci&oacute;n", "Cuotas",
+				"Saldo", "Prima", "Acciones"				
 		];
 		$tabla = parent::thead("credito", $head);
 		$creds = CreditoXCliente::find("cliente = $cid");
 		foreach ($creds as $c){
+			$suc = Sucursal::findFirst("id = $c->sucursal");
+			$cuotas = Cuotas::find("credito = $c->id");
+			$totCuotas = count($cuotas);
+			$saldo = $c->monto - $c->prima;
+			foreach ($cuotas as $cuot){
+				$recibo = Recibos::find("cuota = $cuot->id");
+				if(count($recibo) > 0){
+					$saldo = $saldo - $cuot->monto;
+				}
+			}
+			$saldo = $c->monto - 
 			$tabla = $tabla.parent::tbody([
 					$c->id,
+					$suc->nombre,
 					$c->monto,
 					$c->fecha_adquisicion,
 					$c->fecha_cancelacion, 
-					$c->cuotaBase, 
-					$c->interes, 
+					$totCuotas, 
+					$saldo, 
 					$c->prima,
 					parent::a(1, "credito/editar/$c->id", "Editar")." | ".
 					parent::a(1, "cuotas/index/$c->id", "Cuotas")
@@ -176,6 +190,7 @@ class CreditoController extends ControllerBase
 					NULL,
 					TRUE,
 					FALSE);
+			$colN = 1;
 			foreach ($rowData as $col){
 					
 				if ($titulo == true){
@@ -183,77 +198,107 @@ class CreditoController extends ControllerBase
 					continue;
 				}
 				else{
-					
-					//crear cliente
-					$client = new Cliente();
-					$client->documento = "NA".$col[0]; //se crearan con NA seguido del numero de cuenta temporalmente
-					$client->estado = 1;
-					$client->municipio = 2; //Se asume San Salvador
-					$client->nombre = $col[2];
-					$client->save();
-					
-					//crear Item (producto)
-					$prod = new Item();
-					$prod->codigo = $col[0]; //para mientras se creará el artículo con el código de cuenta
-					$prod->descripcion = $col[3];
-					$prod->impuesto = 0;
-					$prod->marca = "NA";
-					$prod->modelo = "NA";
-					$prod->total = 0;
-					$prod->valor = $col[5]/1.035;
-					$prod->save();
-					
-					//crear credito
-					$cred = new CreditoXCliente();
-					$cred->cuenta = $col[0];
-					$cred->fecha_adquisicion = parent::fechaExcel($col[7]);
-					$cred->cuotaBase = $col[5]/($col[4] + 1);
-					$cred->fsolicitud = parent::fechaExcel($col[1]);
-					$cred->interes = 3.5;
-					$cred->monto = $col[5];
-					$cred->prima = $col[8];
-					$cred->sucursal = 2; //sucursal Darío
-					$cred->cliente = $client->id;
-					$cred->save();
-					
-					
-					//crear Cuotas en blanco
-					$cuotas = $col[4];
-					$off = 9;
-					$size = count($col);
-					for ($i = 1; $i <= $cuotas; $i++){
-						$cuota = new Cuotas();
-						$cuota->credito = $cred->id;							
-						if(($i*3 + $off) <= $size){
-							$pos = (($i *3) + $off) - 1;
-							$cuota->fechaPago = parent::fechaExcel($col[$pos]);
-							$cuota->monto = $col[$pos +1];							
-							$cuota->save();
-							
-							//crear recibo
-							$recibo = new Recibos();
-							$recibo->cuota = $cuota->id;
-							$recibo->fpago = $cuota->fechaPago;
-							$recibo->numero = $col[$pos-1];
-							$recibo->save();
-						}else{
-							$cuota->fechaPago = parent::datePlus2($cred->fsolicitud, $i, "m");
-							$cuota->monto = 0;
-							$cuota->save();
-						}
-						
-					}
-					
-					
+					$this->trabajaCol($col, 2);
 				}
-					
+				$colN++;	
 			}
 		}
 		parent::msg("Termin&oacute; subida de excel Comercial Dario", "n");
 		parent::forward("inicio", "index");
 	}
 	
-	function subidaAngelAction(){
+	public function trabajaCol($col, $suc){
+		$result = true;
+		//crear cliente
+		$client = new Cliente();
+		$client->documento = "NA".$col[0]; //se crearan con NA seguido del numero de cuenta temporalmente
+		$client->estado = 1;
+		$client->municipio = 2; //Se asume San Salvador
+		$client->nombre = $col[2];
+		if(!$client->save()) $result = false;
+			
+		//crear Item (producto)
+		$prod = new Item();
+		$prod->codigo = $col[0]; //para mientras se creará el artículo con el código de cuenta
+		$prod->descripcion = $col[3];
+		$prod->impuesto = 0;
+		$prod->marca = "NA";
+		$prod->modelo = "NA";
+		$prod->total = 0;
+		$prod->valor = $col[5]/1.035;
+		if(!$prod->save()) $result = false;
+			
+		//crear credito
+		$cred = new CreditoXCliente();
+		$cred->cuenta = $col[0];
+		$cred->fecha_adquisicion = parent::fechaExcel($col[7]);
+		$cred->cuotaBase = $col[5]/($col[4] + 1);
+		$cred->fsolicitud = parent::fechaExcel($col[1]);
+		$cred->interes = 3.5;
+		$cred->monto = $col[5];
+		$cred->prima = $col[8];
+		$cred->sucursal = $suc; //2 es Dario, 1 es Angel
+		$cred->cliente = $client->id;
+		if(!$cred->save()) $result = false;
+			
+		//crear cuota de prima
+		$prima = new Cuotas();
+		$prima->credito = $cred->id;
+		$prima->fechaPago = $cred->fecha_adquisicion;
+		$prima->monto = $cred->prima;
+		$prima->prima = 1;
+		if(!$prima->save()) $result = false;
+			
+		//crear recibo de la prima
+		$receipt = new Recibos();
+		$receipt->cuota = $prima->id;
+		$receipt->fpago = $prima->fechaPago;
+		$receipt->numero = $col[6];
+		if(!$receipt->save()) $result = false;
+			
+		//crear Cuotas en blanco
+		$cuotas = $col[4];
+		parent::msg("total cuotas = $cuotas");
+		$this->creaCuotas($cuotas, $cred);
+		
+		//actualizar cuotas ya pagadas
+		$off = 9;
+		$size = count($col);
+		$counter = 1;
+		$loadCuotas = Cuotas::find("credito = $cred->id and prima = 0");
+		foreach ($loadCuotas as $l){
+			if(($counter*3 + $off) <= $size){
+				$pos = (($counter *3) + $off) - 1;
+				$l->fechaPago = parent::fechaExcel($col[$pos]);
+				$l->monto = $col[$pos +1];
+				$l->update();
+				
+				//crear recibo
+				$recibo = new Recibos();
+				$recibo->cuota = $l->id;
+				$recibo->fpago = $l->fechaPago;
+				$recibo->numero = $col[$pos-1];
+				$recibo->save();
+			}
+			$counter++;
+		}
+		
+		return $result;
+	}
+	
+	public function creaCuotas($cuotas, $cred){
+		for ($i = 1; $i <= $cuotas; $i++){
+			$cuota = new Cuotas();
+			$cuota->credito = $cred->id;
+			$cuota->prima = 0;
+			$cuota->fechaPago = parent::datePlus2($cred->fsolicitud, $i, "m");
+			$cuota->monto = 0;
+			$cuota->save();
+		}
+		
+	}
+	
+function subidaAngelAction(){
 		$file = "c:\TEMP\angel.xlsx";
 		$inputFileType = PHPExcel_IOFactory::identify($file);
 		$objReader = PHPExcel_IOFactory::createReader($inputFileType);
@@ -271,6 +316,7 @@ class CreditoController extends ControllerBase
 					NULL,
 					TRUE,
 					FALSE);
+			$colN = 1;
 			foreach ($rowData as $col){
 					
 				if ($titulo == true){
@@ -278,70 +324,9 @@ class CreditoController extends ControllerBase
 					continue;
 				}
 				else{
-						
-					//crear cliente
-					$client = new Cliente();
-					$client->documento = "NA".$col[0]; //se crearan con NA seguido del numero de cuenta temporalmente
-					$client->estado = 1;
-					$client->municipio = 2; //Se asume San Salvador
-					$client->nombre = $col[2];
-					$client->save();
-						
-					//crear Item (producto)
-					$prod = new Item();
-					$prod->codigo = $col[0]; //para mientras se creará el artículo con el código de cuenta
-					$prod->descripcion = $col[3];
-					$prod->impuesto = 0;
-					$prod->marca = "NA";
-					$prod->modelo = "NA";
-					$prod->total = 0;
-					$prod->valor = $col[5]/1.035;
-					$prod->save();
-						
-					//crear credito
-					$cred = new CreditoXCliente();
-					$cred->cuenta = $col[0];
-					$cred->fecha_adquisicion = parent::fechaExcel($col[7]);
-					$cred->cuotaBase = $col[5]/($col[4] + 1);
-					$cred->fsolicitud = parent::fechaExcel($col[1]);
-					$cred->interes = 3.5;
-					$cred->monto = $col[5];
-					$cred->prima = $col[8];
-					$cred->sucursal = 1; //sucursal El Angel
-					$cred->cliente = $client->id;
-					$cred->save();
-						
-						
-					//crear Cuotas en blanco
-					$cuotas = $col[4];
-					$off = 9;
-					$size = count($col);
-					for ($i = 1; $i <= $cuotas; $i++){
-						$cuota = new Cuotas();
-						$cuota->credito = $cred->id;
-						if(($i*3 + $off) <= $size){
-							$pos = (($i *3) + $off) - 1;
-							$cuota->fechaPago = parent::fechaExcel($col[$pos]);
-							$cuota->monto = $col[$pos +1];
-							$cuota->save();
-								
-							//crear recibo
-							$recibo = new Recibos();
-							$recibo->cuota = $cuota->id;
-							$recibo->fpago = $cuota->fechaPago;
-							$recibo->numero = $col[$pos-1];
-							$recibo->save();
-						}else{
-							$cuota->fechaPago = parent::datePlus2($cred->fsolicitud, $i, "m");
-							$cuota->monto = 0;
-							$cuota->save();
-						}
-	
-					}
-						
-						
+					$this->trabajaCol($col, 1);
 				}
-					
+				$colN++;	
 			}
 		}
 		parent::msg("Termin&oacute; subida de excel Comercial El Angel", "n");
