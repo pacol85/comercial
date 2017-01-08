@@ -19,12 +19,6 @@ class Cliente extends \Phalcon\Mvc\Model
      *
      * @var string
      */
-    public $documento;
-
-    /**
-     *
-     * @var string
-     */
     public $fexpedicion;
 
     /**
@@ -104,13 +98,48 @@ class Cliente extends \Phalcon\Mvc\Model
      * @var string
      */
     public $estado;
+
+    /**
+     *
+     * @var string
+     */
+    public $dui;
+
+    /**
+     *
+     * @var string
+     */
+    public $nit;
+
+    /**
+     *
+     * @var string
+     */
+    public $telcasa;
+
+    /**
+     *
+     * @var string
+     */
+    public $celular;
+
+    /**
+     *
+     * @var string
+     */
+    public $foto;
     
     /**
      *
-     * @var $integer
+     * @var string
      */
-    public $tipodoc;
+    public $pagador;
 
+    /**
+     *
+     * @var string
+     */
+    public $fcreacion;
     /**
      * Initialize method for model.
      */

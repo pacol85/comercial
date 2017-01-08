@@ -105,14 +105,16 @@ class ControllerBase extends Controller {
 									"size" => 30,
 									"class" => "form-control",
 									"id" => "$n[0]",
-									"readonly" => "" 
+									"readonly" => "",
+									"data-bind" => "value: regexInput, valueUpdate: 'keyup'"
 							) );
 						} else {
 							$elem = $elem . $this->tag->textField ( array (
 									"$n[0]",
 									"size" => 30,
 									"class" => "form-control",
-									"id" => "$n[0]" 
+									"id" => "$n[0]",
+									"data-bind" => "value: regexInput, valueUpdate: 'keyup'" 
 							) );
 						}
 						break;
@@ -124,7 +126,8 @@ class ControllerBase extends Controller {
 									"class" => "form-control",
 									"id" => "$n[0]",
 									"value" => "$n[1]",
-									"readonly" => "" 
+									"readonly" => "",
+									"data-bind" => "value: regexInput, valueUpdate: 'keyup'" 
 							) );
 						} else {
 							$elem = $elem . $this->tag->textField ( array (
@@ -132,7 +135,8 @@ class ControllerBase extends Controller {
 									"size" => 30,
 									"class" => "form-control",
 									"id" => "$n[0]",
-									"value" => "$n[1]" 
+									"value" => "$n[1]",
+									"data-bind" => "value: regexInput, valueUpdate: 'keyup'" 
 							) );
 						}
 						break;

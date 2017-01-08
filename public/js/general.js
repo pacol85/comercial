@@ -13,7 +13,17 @@ $(document).ready(
 								&& (event.which < 48 || event.which > 57))
 							event.preventDefault();
 
-					});			
+					});
+			
+			$("#dui").inputmask({
+			    mask: "99999999-9",
+			    //definitions: {'5': {validator: "[0-5]"}}
+			});
+
+			$("#nit").inputmask({
+			    mask: "9999-999999-999-9",
+			    //definitions: {'5': {validator: "[0-5]"}}
+			});
 		});
 
 function showResult(str) {
@@ -53,3 +63,4 @@ function municipios(action){
 	}
 	
 }
+

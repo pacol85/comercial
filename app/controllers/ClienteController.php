@@ -13,20 +13,23 @@ class ClienteController extends ControllerBase
 		
 		$campos = [
 				["t", ["nombre"], "Nombre Completo"],
-				["sel", ["tipoDoc", ["1" => "DUI", "2" => "NIT"]], "Tipo Documento"],
-				["t", ["doc"], "Documento"],
+				["t", ["dui"], "DUI"],
 				["d", ["expedicion"], "Fecha Expedici&oacute;n"],
 				["t", ["lugar"], "Lugar Expedici&oacute;n"],
+				["t", ["nit"], "NIT"],
 				["t", ["dir"], "Direcci&oacute;n"],
 				["sdb", ["dept", $dept, ["id", "nombre"]], "Departamento"],
 				["sdb", ["muni", $muni, ["id", "nombre"]], "Municipio", "mdiv"],
 				["h", ["mid"], ""],
+				["t", ["cel"], "Celular"],
+				["t", ["telCasa"], "Tel&eacute;fono Casa"],
 				["sel", ["alquila", ["1" => "S&iacute;", "0" => "No"]], "Alquila"],
 				["t", ["propietario"], "Propietario"],
 				["t", ["trabajo"], "Trabajo"],
 				["t", ["area"], "Area de trabajo"],
 				["t", ["cargo"], "Cargo"],
 				["t", ["jefe"], "Jefe"],
+				["t", ["pagador"], "Pagador"],
 				["d", ["fdesde"], "Desde"],
 				["m", ["sueldo", 0], "Sueldo"],
 				["t", ["tofic"], "Tel&eacute;fono Oficina"],
@@ -35,8 +38,8 @@ class ClienteController extends ControllerBase
 		];		
 		$form = parent::form($campos, "cliente/guardar", "form1");
 		
-		$head = ["Nombre", "Documento", "Municipio", "Alquila", "Trabajo",
-				"Sueldo", "Tel.", "Acciones"				
+		$head = ["Nombre", "DUI", "Municipio", "Alquila", "Trabajo",
+				"Sueldo", "# Tel", "Acciones"				
 		];
 		$tabla = parent::thead("clientes", $head);
 		$clientes = Cliente::find();
@@ -52,24 +55,27 @@ class ClienteController extends ControllerBase
 			$m = Municipios::findFirst("id = $c->municipio");
 			$tabla = $tabla.parent::tbody([
 					$c->nombre,
-					$c->documento,
+					$c->dui,
 					$m->nombre,
 					$alquila,
 					$c->trabajo,
 					$c->sueldo,
-					$c->telOficina,
-					parent::a(2, "cargarDatos('".$c->id."', '".$c->nombre."', '".$c->tipodoc."', '".
-							$c->documento."', '".$c->fexpedicion."', '".$c->lugarExpedicion."', '".$c->direccion."', '".
-							$m->departamento."', '".$m->id."', '".$c->alquila."', '".$c->propietario."', '".
-							$c->trabajo."', '".$c->areaTrab."', '".$c->cargo."', '".$c->jefe."', '".$c->fdesde."', '".
-							$c->sueldo."', '".$c->telOficina."')", "Editar")." | ".
-					parent::a(1, "credito/index/$c->id", "Cr&eacute;ditos")//, [["id", $c->id]])
+					$c->celular,
+					parent::a(2, "cargarDatos('".$c->id."', '".$c->nombre."', '".$c->dui."', '".
+							$c->fexpedicion."', '".$c->lugarExpedicion."', '".$c->nit."', '".$c->direccion."', '".
+							$m->departamento."', '".$m->id."', '".$c->celular."', '".$c->telcasa."', '".$c->alquila."', '".
+							$c->propietario."', '".$c->trabajo."', '".$c->areaTrab."', '".$c->cargo."', '".$c->jefe."', '".
+							$c->pagador."', '".$c->fdesde."', '".$c->sueldo."', '".$c->telOficina."')", "Editar")." | ".
+					parent::a(1, "credito/index/$c->id", "Cr&eacute;ditos")." | ".
+					parent::a(1, "familiar/index/$c->id", "Familiares")." | ".
+					parent::a(1, "amigo/index/$c->id", "Amigos")." | ".
+					parent::a(1, "fiador/index/$c->id", "Fiadores")
 			]);
 		}		
 		
 		//js
-		$fields = ["id", "nombre", "tipoDoc", "doc", "expedicion", "lugar", "dir", "dept", "muni", "alquila", 
-				"propietario", "trabajo", "area", "cargo", "jefe", "fdesde", "sueldo", "tofic"];
+		$fields = ["id", "nombre", "dui", "expedicion", "lugar", "nit", "dir", "dept", "muni", "cel", "telCasa", "alquila", 
+				"propietario", "trabajo", "area", "cargo", "jefe", "pagador", "fdesde", "sueldo", "tofic"];
 		$otros = "";
 		$jsBotones = ["form1", "cliente/edit", "cliente/index"];
 		
@@ -77,11 +83,12 @@ class ClienteController extends ControllerBase
 	}
 	
 	public function guardarAction(){
-		if(parent::vPost("nombre") && parent::vPost("doc") && parent::vPost("dir") && parent::vPost("trabajo") &&
-				parent::vPost("fdesde") && parent::vPost("sueldo")){
-			$doc = parent::gPost("doc");
+		if(parent::vPost("nombre") && parent::vPost("dui") && parent::vPost("dir") && parent::vPost("trabajo") &&
+				parent::vPost("fdesde") && parent::vPost("sueldo") && parent::vPost("nit")){
+			$dui = parent::gPost("dui");
+			$nit = parent::gPost("nit");
 			$nombre = parent::gPost("nombre");
-			$cli = Cliente::find("documento like '$doc' or nombre like '$nombre'");
+			$cli = Cliente::find("dui like '$dui' or nombre like '$nombre' or nit like '$nit");
 			if(count($cli) > 0){
 				parent::msg("Los documentos ingresados equivalen a los de otro cliente ya existente");
 				return parent::forward("cliente", "index");
@@ -91,14 +98,16 @@ class ClienteController extends ControllerBase
 			$c->alquila = parent::gPost("alquila");
 			$c->areaTrab = parent::gPost("area");
 			$c->cargo = parent::gPost("cargo");
+			$c->celular = parent::gPost("cel");
 			$c->direccion = parent::gPost("dir");
-			$c->documento = parent::gPost("doc");
+			$c->dui = parent::gPost("dui");
 			$c->estado = 1;
 			$c->fdesde = parent::gPost("fdesde");
 			$c->fexpedicion = parent::gPost("expedicion");
 			$c->jefe = parent::gPost("jefe");
 			$c->lugarExpedicion = parent::gPost("lugar");
 			$c->municipio = parent::gPost("muni");
+			$c->nit = parent::gPost("nit");
 			$c->trabajo = parent::gPost("trabajo");
 			$c->nombre = parent::gPost("nombre");
 			if($c->alquila == 1){
@@ -107,8 +116,11 @@ class ClienteController extends ControllerBase
 				$c->propietario = $c->nombre;
 			}			
 			$c->sueldo = parent::gPost("sueldo");
+			$c->telcasa = parent::gPost("telCasa");
 			$c->telOficina = parent::gPost("tofic");
 			$c->tipodoc = parent::gPost("tipoDoc");
+			$c->pagador = parent::gPost("pagador");
+			$c->fcreacion = parent::fechaHoy(true);
 			if($c->save()){
 				parent::msg("El cliente fue creado exitosamente", "s");
 			}else{
@@ -126,11 +138,12 @@ class ClienteController extends ControllerBase
 			return parent::forward("cliente", "index");
 		}
 		$id = parent::gPost("id");
-		$doc = parent::gPost("doc");
+		$dui = parent::gPost("dui");
+		$nit = parent::gPost("nit");
 		$nombre = parent::gPost("nombre");
 		
 		$c = Cliente::findFirst("id = $id");
-		$cli = Cliente::find("(documento like '$doc' or nombre like '$nombre')
+		$cli = Cliente::find("(dui like '$dui' or nombre like '$nombre' or nit like '$nit')
 				and id not like $id");
 		if(count($cli) > 0){
 			parent::msg("El cliente $c->nombre ya existe");
@@ -139,13 +152,16 @@ class ClienteController extends ControllerBase
 		$c->alquila = parent::gPost("alquila");
 		$c->areaTrab = parent::gPost("area");
 		$c->cargo = parent::gPost("cargo");
+		$c->celular = parent::gPost("cel");
 		$c->direccion = parent::gPost("dir");
-		$c->documento = parent::gPost("doc");
+		$c->dui = parent::gPost("dui");
+		$c->estado = 1;
 		$c->fdesde = parent::gPost("fdesde");
 		$c->fexpedicion = parent::gPost("expedicion");
 		$c->jefe = parent::gPost("jefe");
 		$c->lugarExpedicion = parent::gPost("lugar");
 		$c->municipio = parent::gPost("muni");
+		$c->nit = parent::gPost("nit");
 		$c->trabajo = parent::gPost("trabajo");
 		$c->nombre = parent::gPost("nombre");
 		if($c->alquila == 1){
@@ -154,8 +170,11 @@ class ClienteController extends ControllerBase
 			$c->propietario = $c->nombre;
 		}			
 		$c->sueldo = parent::gPost("sueldo");
+		$c->telcasa = parent::gPost("telCasa");
 		$c->telOficina = parent::gPost("tofic");
 		$c->tipodoc = parent::gPost("tipoDoc");
+		$c->pagador = parent::gPost("pagador");
+		
 		if($c->update()){
 			parent::msg("Edici&oacute;n exitosa", "s");
 			return parent::forward("cliente", "index");
