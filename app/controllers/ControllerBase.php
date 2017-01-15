@@ -82,7 +82,7 @@ class ControllerBase extends Controller {
 				break;
 			case "l" :
 				$elem = $elem . '<div class="form-group"><label for="' . $l . '" class="col-sm-2 control-label">' . $l . '</label>';
-				$elem = $elem . '<div class="col-sm-2 control-label" ' . $dId . '>' . $n [0] . '</div></div>';
+				$elem = $elem . '<div class="col-sm-10 control-label" ' . $dId . '>' . $n [0] . '</div></div>';
 				break;
 			case "lf" :
 				$elem = $elem . '<div class="form-group" ' . $dId . '><label for="' . $n [0] . '" class="col-sm-12">' . $l . '</label></div>';

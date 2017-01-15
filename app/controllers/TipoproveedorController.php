@@ -1,6 +1,6 @@
 <?php
 
-class TipoProveedorController extends ControllerBase
+class TipoproveedorController extends ControllerBase
 {
 
     public function indexAction()

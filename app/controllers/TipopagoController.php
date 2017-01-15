@@ -1,6 +1,6 @@
 <?php
 
-class TipoPagoController extends ControllerBase
+class TipopagoController extends ControllerBase
 {
 
     public function indexAction()

@@ -17,7 +17,7 @@ class Fiador extends \Phalcon\Mvc\Model
 
     /**
      *
-     * @var integer
+     * @var string
      */
     public $parentesco;
 
@@ -44,6 +44,132 @@ class Fiador extends \Phalcon\Mvc\Model
      * @var string
      */
     public $telefono;
+
+    /**
+     *
+     * @var string
+     */
+    public $trabajo;
+
+    /**
+     *
+     * @var string
+     */
+    public $depto;
+
+    /**
+     *
+     * @var string
+     */
+    public $jefe;
+
+    /**
+     *
+     * @var string
+     */
+    public $pagador;
+
+    /**
+     *
+     * @var string
+     */
+    public $cargo;
+
+    /**
+     *
+     * @var string
+     */
+    public $sueldo;
+
+    /**
+     *
+     * @var string
+     */
+    public $desde;
+
+    /**
+     *
+     * @var string
+     */
+    public $telofic;
+
+    /**
+     *
+     * @var string
+     */
+    public $dirtrab;
+
+    /**
+     *
+     * @var string
+     */
+    public $dui;
+
+    /**
+     *
+     * @var string
+     */
+    public $expedicion;
+
+    /**
+     *
+     * @var string
+     */
+    public $fexpedicion;
+
+    /**
+     *
+     * @var string
+     */
+    public $conyugue;
+
+    /**
+     *
+     * @var string
+     */
+    public $ctrabajo;
+
+    /**
+     *
+     * @var string
+     */
+    public $cdepto;
+
+    /**
+     *
+     * @var string
+     */
+    public $ccargo;
+
+    /**
+     *
+     * @var string
+     */
+    public $cdesde;
+
+    /**
+     *
+     * @var string
+     */
+    public $ctelefono;
+
+    /**
+     *
+     * @var string
+     */
+    public $cdirtrab;
+
+    /**
+     *
+     * @var string
+     */
+    public $fcreacion;
+
+    /**
+     *
+     * @var string
+     */
+    public $fmod;
 
     /**
      * Initialize method for model.

@@ -17,7 +17,7 @@ class Referencia extends \Phalcon\Mvc\Model
 
     /**
      *
-     * @var integer
+     * @var string
      */
     public $parentesco;
 
@@ -94,6 +94,24 @@ class Referencia extends \Phalcon\Mvc\Model
     public $nombre;
 
     /**
+     *
+     * @var string
+     */
+    public $sueldo;
+
+    /**
+     *
+     * @var string
+     */
+    public $jefe;
+
+    /**
+     *
+     * @var string
+     */
+    public $referencias;
+
+    /**
      * Initialize method for model.
      */
     public function initialize()
@@ -101,6 +119,7 @@ class Referencia extends \Phalcon\Mvc\Model
         $this->hasMany('id', 'CreditoXCliente', 'pariente', array('alias' => 'CreditoXCliente'));
         $this->hasMany('id', 'CreditoXCliente', 'amigo', array('alias' => 'CreditoXCliente'));
         $this->belongsTo('cliente', 'Cliente', 'id', array('alias' => 'Cliente'));
+        $this->belongsTo('parentesco', 'Parentesco', 'id', array('alias' => 'Parentesco'));
     }
 
     /**

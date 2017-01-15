@@ -28,8 +28,6 @@ class ClienteController extends ControllerBase
 				["t", ["trabajo"], "Trabajo"],
 				["t", ["area"], "Area de trabajo"],
 				["t", ["cargo"], "Cargo"],
-				["t", ["jefe"], "Jefe"],
-				["t", ["pagador"], "Pagador"],
 				["d", ["fdesde"], "Desde"],
 				["m", ["sueldo", 0], "Sueldo"],
 				["t", ["tofic"], "Tel&eacute;fono Oficina"],
@@ -85,10 +83,10 @@ class ClienteController extends ControllerBase
 	public function guardarAction(){
 		if(parent::vPost("nombre") && parent::vPost("dui") && parent::vPost("dir") && parent::vPost("trabajo") &&
 				parent::vPost("fdesde") && parent::vPost("sueldo") && parent::vPost("nit")){
-			$dui = parent::gPost("dui");
-			$nit = parent::gPost("nit");
+			$dui = str_replace("-", "", parent::gPost("dui"));
+			$nit = str_replace("-", "", parent::gPost("nit"));
 			$nombre = parent::gPost("nombre");
-			$cli = Cliente::find("dui like '$dui' or nombre like '$nombre' or nit like '$nit");
+			$cli = Cliente::find("dui like '$dui' or nombre like '$nombre' or nit like '$nit'");
 			if(count($cli) > 0){
 				parent::msg("Los documentos ingresados equivalen a los de otro cliente ya existente");
 				return parent::forward("cliente", "index");
@@ -100,14 +98,14 @@ class ClienteController extends ControllerBase
 			$c->cargo = parent::gPost("cargo");
 			$c->celular = parent::gPost("cel");
 			$c->direccion = parent::gPost("dir");
-			$c->dui = parent::gPost("dui");
+			$c->dui = $dui;
 			$c->estado = 1;
 			$c->fdesde = parent::gPost("fdesde");
 			$c->fexpedicion = parent::gPost("expedicion");
 			$c->jefe = parent::gPost("jefe");
 			$c->lugarExpedicion = parent::gPost("lugar");
 			$c->municipio = parent::gPost("muni");
-			$c->nit = parent::gPost("nit");
+			$c->nit = $nit;
 			$c->trabajo = parent::gPost("trabajo");
 			$c->nombre = parent::gPost("nombre");
 			if($c->alquila == 1){
@@ -123,6 +121,7 @@ class ClienteController extends ControllerBase
 			$c->fcreacion = parent::fechaHoy(true);
 			if($c->save()){
 				parent::msg("El cliente fue creado exitosamente", "s");
+				return parent::forward("referencia", "index", [$c->id,"1"]); //primer paso: cónyugue
 			}else{
 				parent::msg("Ocurri&oacute; un error durante la transacci&oacute;n");
 			}
@@ -138,8 +137,8 @@ class ClienteController extends ControllerBase
 			return parent::forward("cliente", "index");
 		}
 		$id = parent::gPost("id");
-		$dui = parent::gPost("dui");
-		$nit = parent::gPost("nit");
+		$dui = str_replace("-", "", parent::gPost("dui"));
+		$nit = str_replace("-", "", parent::gPost("nit"));
 		$nombre = parent::gPost("nombre");
 		
 		$c = Cliente::findFirst("id = $id");
@@ -154,14 +153,14 @@ class ClienteController extends ControllerBase
 		$c->cargo = parent::gPost("cargo");
 		$c->celular = parent::gPost("cel");
 		$c->direccion = parent::gPost("dir");
-		$c->dui = parent::gPost("dui");
+		$c->dui = $dui;
 		$c->estado = 1;
 		$c->fdesde = parent::gPost("fdesde");
 		$c->fexpedicion = parent::gPost("expedicion");
 		$c->jefe = parent::gPost("jefe");
 		$c->lugarExpedicion = parent::gPost("lugar");
 		$c->municipio = parent::gPost("muni");
-		$c->nit = parent::gPost("nit");
+		$c->nit = $nit;
 		$c->trabajo = parent::gPost("trabajo");
 		$c->nombre = parent::gPost("nombre");
 		if($c->alquila == 1){
