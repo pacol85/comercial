@@ -140,6 +140,13 @@ class Cliente extends \Phalcon\Mvc\Model
      * @var string
      */
     public $fcreacion;
+    
+    /**
+     *
+     * @var string
+     */
+    public $dirtrab;
+    
     /**
      * Initialize method for model.
      */

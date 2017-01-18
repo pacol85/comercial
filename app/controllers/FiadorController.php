@@ -19,62 +19,103 @@ class FiadorController extends ControllerBase
 			["t", ["propietario"], "Propietario"],
 			["t", ["trabajo"], "Trabajo"],
 			["t", ["area"], "Area de trabajo"],
+			["t", ["jefe"], "Jefe"],
+			["t", ["pagador"], "Pagador"],
 			["t", ["cargo"], "Cargo"],
-			["d", ["fdesde"], "Desde"],
 			["m", ["sueldo", 0], "Sueldo"],
+			["d", ["fdesde"], "Desde"],
 			["t", ["tofic"], "Tel&eacute;fono Oficina"],
-			["t", ["dir"], "Dir. Trabajo"],
+			["t", ["dirtrab"], "Dir. Trabajo"],
+			["t", ["dui"], "DUI"],
+			["t", ["expedido"], "Lugar Expedici&oacute;n"],				
+			["d", ["fexpedicion"], "Fecha Expedici&oacute;n"],
+			["t", ["conyugue"], "Nombre C&oacute;nyugue"],
+			["t", ["ctrabajo"], "Trabajo"],
+			["t", ["carea"], "Area de trabajo"],
+			["t", ["ccargo"], "Cargo"],
+			["d", ["cfdesde"], "Desde"],
+			["t", ["ctofic"], "Tel&eacute;fono Oficina"],
+			["t", ["cdirtrab"], "Dir. Trabajo"],
 			["s", ["guardar"], "Guardar"]
-			];
+		];
 		$form = parent::form($campos, "fiador/guardarIni/$cid", "form1");
     	    
     	parent::view("Fiador", $form);
     }
     
-    public function guardarIniAction($cid, $tipoRef){
-    	$next = $tipoRef +1;
+    public function guardarIniAction($cid){
     	if(parent::vPost("nombre")){
-    		$ref = new Referencia();
-    		$ref->areaTrab = parent::gPost("area");
-    		$ref->cargo = parent::gPost("cargo");
-    		$ref->cliente = $cid;
-    		$ref->direccion = parent::gPost("dir");
-    		$ref->fcreacion = parent::fechaHoy(true);
-    		$ref->jefe = parent::gPost("jefe");
-    		$ref->nombre = parent::gPost("nombre");
-    		if($tipoRef == 1) {
-    			$ref->parentesco = 1;
-    		}else {
-    			$ref->parentesco = parent::gPost("par");
-    		}
-    		if($tipoRef == 3){
-    			$ref->pariente = 0;
-    		}else $ref->pariente = 1;
-    		$ref->referencias = parent::gPost("ref");
-    		$ref->sueldo = parent::gPost("sueldo");
-    		$ref->telefono = parent::gPost("tel");
-    		$ref->telOficina = parent::gPost("telOfic");
-    		$ref->trabajo = parent::gPost("trabajo");
-    		$ref->validez = 0; //no ha sido validado
+    		$dui = str_replace("-", "", parent::gPost("dui"));
+    		$f = new Fiador();
+    		$f->alquila = parent::gPost("alquila");
+    		$f->cargo = parent::gPost("cargo");
+    		$f->depto = parent::gPost("area");
+    		$f->desde = parent::gPost("fdesde");
+    		$f->direccion = parent::gPost("dir");
+    		$f->dirtrab = parent::gPost("dirtrab");
+    		$f->dui = $dui;
+    		$f->expedicion = parent::gPost("expedido");
+    		$f->fcreacion = parent::fechaHoy(true);
+    		$f->fexpedicion = parent::gPost("fexpedicion");
+    		$f->jefe = parent::gPost("jefe");
+    		$f->nombre = parent::gPost("nombre");
+    		$f->pagador = parent::gPost("pagador");
+    		$f->parentesco = parent::gPost("par");
+    		$f->propietario = parent::gPost("propietario");
+    		$f->sueldo = parent::gPost("sueldo");
+    		$f->telefono = parent::gPost("tel");
+    		$f->telofic = parent::gPost("tofic");
+    		$f->trabajo = parent::gPost("trabajo");
     		
-    		if($ref->save()){
-    			parent::msg("Referencia creada exitosamente", "s");
-    			if($tipoRef >= 3){
-    				return parent::forward("fiador", "index", [$cid]);
-    			}else{
-    				return parent::forward("referencia", "index", [$cid, $next]);
+    		//información del cónyugue
+    		$f->ccargo = parent::gPost("ccargo");
+    		$f->cdepto = parent::gPost("carea");
+    		$f->cdesde = parent::gPost("cfdesde");
+    		$f->cdirtrab = parent::gPost("cdirtrab");
+    		$f->conyugue = parent::gPost("conyugue");
+    		$f->ctelefono = parent::gPost("ctofic");
+    		$f->ctrabajo = parent::gPost("ctrabajo");
+    		
+    		//Verificar si hay prestamo activo a su nombre o si existe ya como fiador de alguien más
+    		$mensaje = "";
+    		$fiadoresA = Fiador::find("dui like '$f->dui' or nombre like '$f->nombre' and aprobado = 1");
+    		if(count($fiadoresA) > 0){
+    			$fa = $fiadoresA->getFirst();
+    			$cred = CreditoXCliente::find("fiador = $fa->id");
+    			if(count($cred) > 0){
+    				$ca = $cred->getFirst();
+    				$mensaje = "Posible duplicado, existe como fiador aprobado cuenta $ca->cuenta. ";
     			}
+    			
+    		}
+    		$fiadoresD = Fiador::find("dui like '$f->dui' or nombre like '$f->nombre' and aprobado = 2");
+    		if(count($fiadoresD) > 0){
+    			$mensaje = $mensaje. "Este fiador ya hab&iacute;a sido denegado anteriormente. ";
+    		}
+    		
+    		$clientes = Cliente::find("dui like '$f->dui' or nombre like '$f->nombre'");
+    		if(count($clientes) > 0){
+    			$cli = $clientes->getFirst();
+    			$credC = CreditoXCliente::find("cliente = $cli->id and fecha_cancelacion is not null");
+    			if(count($credC) > 0){
+    				$cc = $credC->getFirst();
+    				$mensaje = $mensaje."Existe como cliente con cuenta vigente: $ca->cuenta. ";
+    			}
+    		}
+    		
+    		if($f->save()){
+    			parent::msg("Fiador creado exitosamente", "s");
+    			parent::msg($mensaje, "w");
+    			return parent::forward("credito", "fullproc", [$cid, $f->id]);
+    			
     		}else{
     			parent::msg("Ocurri&oacute; un error durante la operación");
     		}
     	}else{
-    		if($tipoRef >= 3){
-    			return parent::forward("fiador", "index", [$cid]);
-    		}else{    			
-    			return parent::forward("referencia", "index", [$cid, $next]);
-    		}    		
+    		parent::msg("Se continu&oacute; sin agregar Fiador");
+    		return parent::forward("credito", "index", [$cid]);    		
     	}
-    	parent::forward("referencia", "index", [$cid, $tipoRef]);
+    	parent::forward("fiador", "index", [$cid]);
     }
     
     public function eliminarAction(){

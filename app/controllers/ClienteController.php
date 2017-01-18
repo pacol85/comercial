@@ -27,10 +27,13 @@ class ClienteController extends ControllerBase
 				["t", ["propietario"], "Propietario"],
 				["t", ["trabajo"], "Trabajo"],
 				["t", ["area"], "Area de trabajo"],
+				["t", ["jefe"], "Jefe"],
+				["t", ["pagador"], "Pagador"],
 				["t", ["cargo"], "Cargo"],
-				["d", ["fdesde"], "Desde"],
 				["m", ["sueldo", 0], "Sueldo"],
+				["d", ["fdesde"], "Desde"],
 				["t", ["tofic"], "Tel&eacute;fono Oficina"],
+				["t", ["dirtrab"], "Dir. Trabajo"],
 				["h", ["id"], ""],
 				["s", [""], "Guardar"]	
 		];		
@@ -63,7 +66,7 @@ class ClienteController extends ControllerBase
 							$c->fexpedicion."', '".$c->lugarExpedicion."', '".$c->nit."', '".$c->direccion."', '".
 							$m->departamento."', '".$m->id."', '".$c->celular."', '".$c->telcasa."', '".$c->alquila."', '".
 							$c->propietario."', '".$c->trabajo."', '".$c->areaTrab."', '".$c->cargo."', '".$c->jefe."', '".
-							$c->pagador."', '".$c->fdesde."', '".$c->sueldo."', '".$c->telOficina."')", "Editar")." | ".
+							$c->pagador."', '".$c->fdesde."', '".$c->sueldo."', '".$c->telOficina."', '".$c->dirtrab."')", "Editar")." | ".
 					parent::a(1, "credito/index/$c->id", "Cr&eacute;ditos")." | ".
 					parent::a(1, "familiar/index/$c->id", "Familiares")." | ".
 					parent::a(1, "amigo/index/$c->id", "Amigos")." | ".
@@ -73,7 +76,7 @@ class ClienteController extends ControllerBase
 		
 		//js
 		$fields = ["id", "nombre", "dui", "expedicion", "lugar", "nit", "dir", "dept", "muni", "cel", "telCasa", "alquila", 
-				"propietario", "trabajo", "area", "cargo", "jefe", "pagador", "fdesde", "sueldo", "tofic"];
+				"propietario", "trabajo", "area", "cargo", "jefe", "pagador", "fdesde", "sueldo", "tofic", "dirtrab"];
 		$otros = "";
 		$jsBotones = ["form1", "cliente/edit", "cliente/index"];
 		
@@ -119,6 +122,7 @@ class ClienteController extends ControllerBase
 			$c->tipodoc = parent::gPost("tipoDoc");
 			$c->pagador = parent::gPost("pagador");
 			$c->fcreacion = parent::fechaHoy(true);
+			$c->dirtrab = parent::gPost("dirtrab");
 			if($c->save()){
 				parent::msg("El cliente fue creado exitosamente", "s");
 				return parent::forward("referencia", "index", [$c->id,"1"]); //primer paso: cónyugue
@@ -173,6 +177,7 @@ class ClienteController extends ControllerBase
 		$c->telOficina = parent::gPost("tofic");
 		$c->tipodoc = parent::gPost("tipoDoc");
 		$c->pagador = parent::gPost("pagador");
+		$c->dirtrab = parent::gPost("dirtrab");
 		
 		if($c->update()){
 			parent::msg("Edici&oacute;n exitosa", "s");

@@ -332,6 +332,77 @@ function subidaAngelAction(){
 		parent::msg("Termin&oacute; subida de excel Comercial El Angel", "n");
 		parent::forward("inicio", "index");
 	}
+	
+	public function fullprocAction($cid, $fid)
+	{
+		parent::limpiar();
+		$hoy = parent::fechaHoy(false);
+		$sucursales = Sucursal::find();
+		$campos = [
+				["sdb", ["suc", $sucursales, ["id", "nombre"]], "Sucursal"],
+				["m", ["monto", 0], "Monto"],
+				["d", ["fsolicitud", $hoy], "Fecha Solicitud"],
+				["m", ["prima", 0], "Prima"],
+				["m", ["cuotas", 0], "Cuotas"],
+				["h", ["id"], ""],
+				["s", [""], "Solicitud Inicial"]
+		];
+		$form = parent::form($campos, "credito/guardarfull/$cid/$fid", "form1");
+	
+		parent::view("Cr&eacute;dito", $form);
+	}
+	
+	public function guardarfullAction($cid, $fid){
+		if(parent::vPost("monto") && parent::vPost("fsolicitud") && parent::vPost("prima") &&
+				parent::vPost("cuotas")){
+			$c = new CreditoXCliente();
+			$c->cliente = $cid;
+			$c->fsolicitud = parent::gPost("fsolicitud");
+			$i = Parametros::findFirst("parametro like 'icredito'");
+			$c->interes = $i->valor;
+			$c->monto = parent::gPost("monto");
+			$c->prima = parent::gPost("prima");
+			$c->diaCorte = parent::gDay($c->fsolicitud);
+			$cuotas = parent::gPost("cuotas");
+			$loan = new LoanRequest($c->monto, $c->interes, $cuotas);
+			$result = $loan->calculate();
+			$c->cuotaBase = $result->getMonthlyPayment();
+			
+			//$cliente = Cliente::findFirst("id = $cid");
+			$referencias = Referencia::find("cliente = $cid");
+			foreach ($referencias as $r){
+				if($r->pariente = 1 and $r->parentesco != 1){
+					$c->pariente = $r->id;
+				}else{
+					$c->amigo = $r->id;
+				}
+			}
+			$c->fiador = $fid;
+			$c->sucursal = parent::gPost("suc");
+			
+			if($c->save()){
+				parent::msg("El cr&eacute;dito fue creado exitosamente", "s");
+	
+				//crear cuotas ya sea que se apruebe o no, se modificará cada vez que se haga una modificacion en general
+				for ($i = 1; $i <= $cuotas; $i++){
+					$cuota = new Cuotas();
+					$cuota->credito = $c->id;
+					$cuota->fechaPago = parent::datePlus2($c->fsolicitud, $i, "m");
+					$cuota->monto = 0;
+					$cuota->save();
+				}
+			}else{
+				parent::msg("Ocurri&oacute; un error durante la transacci&oacute;n");
+				/*parent::msg("$c->cliente, $c->fsolicitud, $c->interes, $c->monto, $c->prima, $c->diaCorte, $c->cuotaBase, $c->pariente, 
+						$c->amigo, $c->fiador");*/
+				return parent::forward("credito", "fullproc", [$cid, $fid]);
+			}
+		}else{
+			parent::msg("Aseg&uacute;rese de llenar todos los campos");
+			return parent::forward("credito", "fullproc", [$cid, $fid]);
+		}
+		parent::forward("credito", "index", [$cid]);
+	}
 
 }
 ?>

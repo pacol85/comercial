@@ -18,7 +18,7 @@ class ProveedorController extends ControllerBase
 		];		
 		$form = parent::form($campos, "proveedor/guardar", "form1");
 		
-		$head = ["Nombre", "Documento", "Documento 2", "Direcci&oacute;n", "Tel&eacute;fono", "Tipo", "Creaci&oacute;n", "Modificaci&oacute;n", "Acciones"];
+		$head = ["Nombre", "Documento", "Documento 2", "Direcci&oacute;n", "Tel&eacute;fono", "Tipo", "Acciones"];
 		$tabla = parent::thead("proveedor", $head);
 		$proveedor = Proveedor::find();
 		foreach ($proveedor as $u){
@@ -31,6 +31,7 @@ class ProveedorController extends ControllerBase
 					$u->telefono,
 					$r->tipo,
 					parent::a(2, "cargarDatos('".$u->id."', '".$u->nombre."', '".$u->documento."', '".$u->documento2."', '".$u->direccion."', '".$u->telefono."', '".$u->tipo."')", "Editar")." | ".
+					parent::a(1, "contactos/index/$u->id", "Contactos"). " | " .
 					parent::a(1, "proveedor/eliminar", "Eliminar", [["id", $u->id]])
 					]);
 		}		
