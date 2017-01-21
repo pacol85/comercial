@@ -11,9 +11,11 @@ class BancosController extends ControllerBase
 				["h", ["id"], ""],
 				["t", ["telefono"], "Tel&eacute;fono"],
 				["t", ["direccion"], "Direcci&oacute;n"],
+    			["t", ["cuenta"], "Cuenta"],
+    			["t", ["saldo"], "Saldo Inicial"],
 				["s", ["guardar"], "Guardar"]
 		];
-		$head = ["Nombre", "Tel&eacute;fono","Direcci&oacute;n", "Acciones"];
+		$head = ["Nombre", "Cuenta", "Saldo", "Tel&eacute;fono","Direcci&oacute;n", "Acciones"];
 		$tabla = parent::thead("bancos", $head);
 		$bancos = Bancos::find();
 		foreach ($bancos as $r){
@@ -21,13 +23,13 @@ class BancosController extends ControllerBase
 					$r->nombre,
 					$r->telefono,
 					$r->direccion,
-					parent::a(2, "cargarDatos('".$r->id."','".$r->nombre."','".$r->telefono."','".$r->direccion."');", "Editar")." | ".
+					parent::a(2, "cargarDatos('".$r->id."','".$r->nombre."','".$r->telefono."','".$r->cuenta."','".$r->saldo."','".$r->direccion."','".$r->direccion."');", "Editar")." | ".
 					parent::a(1, "bancos/eliminar", "Eliminar", [["id", $r->id]])
 			]);
 		}
 		
 		//js
-		$fields = ["id", "nombre", "telefono", "direccion"];
+		$fields = ["id", "nombre", "telefono", "direccion", "cuenta", "saldo"];
 		$otros = "";
 		$jsBotones = ["form1", "bancos/edit", "bancos"];
 		
@@ -43,6 +45,8 @@ class BancosController extends ControllerBase
     		$bancos->nombre = parent::gPost("nombre");
     		$bancos->telefono = parent::gPost("telefono");
     		$bancos->direccion = parent::gPost("direccion");
+    		$bancos->cuenta = parent::gPost("cuenta");
+    		$bancos->saldo = parent::gPost("saldo");
     		if($bancos->save()){
     			parent::msg("Banco creado exitosamente", "s");
     		}else{
@@ -76,6 +80,8 @@ class BancosController extends ControllerBase
     		$bancos->nombre = parent::gPost("nombre");
     		$bancos->telefono = parent::gPost("telefono");
     		$bancos->direccion = parent::gPost("direccion");
+    		$bancos->cuenta = parent::gPost("cuenta");
+    		$bancos->saldo = parent::gPost("saldo");
     		if($bancos->update()){
     			parent::msg("Banco modificado exitosamente", "s");
     		}else{

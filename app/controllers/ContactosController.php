@@ -10,7 +10,7 @@ class ContactosController extends ControllerBase
 				["t", ["nombre"], "Nombre"],
 				["t", ["tel"], "Tel&eacute;fono"],
 				["t", ["cel"], "Celular"],
-				["t", ["email"], "E-mail"],
+				["e", ["email"], "E-mail"],
 				["s", [""], "Guardar"]
 		];		
 		$form = parent::form($campos, "contactos/guardar/$pid", "form1");

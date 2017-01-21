@@ -28,6 +28,18 @@ class Bancos extends \Phalcon\Mvc\Model
     public $direccion;
 
     /**
+     *
+     * @var string
+     */
+    public $cuenta;
+
+    /**
+     *
+     * @var string
+     */
+    public $saldo;
+
+    /**
      * Initialize method for model.
      */
     public function initialize()
