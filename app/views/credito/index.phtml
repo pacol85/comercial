@@ -1,11 +1,33 @@
 <script type="text/javascript" language="javascript" class="init">
 	$(document).ready(function() {
-		$('#credito').DataTable();			
+		$('#credito').DataTable();
+		$('#titems').DataTable();
 		$('.edit').hide();		
 	} );
+
+	function addValor(id) {
+		$.ajax({
+			type: "POST",
+			url: "credito/calcular", 
+			data: {cuotas: $('#cuotas').val(), item: id, monto: $('#monto').val(), prima: $('#prima').val()},
+			dataType: "json",
+			success: function(result){
+				var jsondata = jQuery.parseJSON(JSON.stringify(result)); 
+				$("#monto").val(jsondata.monto);
+				$("#prima").val(jsondata.prima);				
+			}});
+	};
+	
 	<?php echo $this->view->js;?>
 </script>
-
+<style>
+.ditems {
+    position: relative;
+    clear: both;
+    width: 90%;
+    left: 110px;
+}
+</style>
 <?php 
 echo $this->view->titulo;
 echo $this->getContent();

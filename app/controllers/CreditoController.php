@@ -11,15 +11,28 @@ class CreditoController extends ControllerBase
 		$sucursales = Sucursal::find();
 		$campos = [
 				["sdb", ["suc", $sucursales, ["id", "nombre"]], "Sucursal"],
-				["m", ["monto", 0], "Monto"],
 				["d", ["fsolicitud", $hoy], "Fecha Solicitud"],
-				["m", ["interes", 0], "Inter&eacute;s"],
-				["m", ["prima", 0], "Prima"],
 				["m", ["cuotas", 0], "Cuotas"],
+				["m", ["monto", 0], "Monto"],
+				["m", ["prima", 0], "Prima"],
 				["h", ["id"], ""],
 				["s", [""], "Solicitud Inicial"]	
-		];		
-		$form = parent::form($campos, "credito/guardar/$cid", "form1");
+		];
+
+		$head1 = ["Cod.", "Marca", "Modelo", "Valor", "Seleccionar", "Cantidad"];
+		$table = parent::thead("titems", $head1);
+		$items = Item::find();
+		foreach ($items as $i){
+			$table = $table . parent::tbody([
+				$i->codigo, 
+				$i->marca, 
+				$i->modelo, 
+				$i->valor, 
+				parent::elemento("cf", ["check", "$i->id", "addValor('$i->id');"], ""),
+				parent::elemento("t", ["n$i->id"], "Cant.")
+			]);
+		}
+		$form = parent::formTabla($campos, $table, 4, "credito/guardar/$cid", "form1");
 		
 		$head = ["Id", "Sucursal", "Saldo Ini", "Adquisici&oacute;n", "Cancelaci&oacute;n", "Cuotas",
 				"Saldo", "Prima", "Acciones"				
@@ -403,6 +416,22 @@ function subidaAngelAction(){
 		}
 		parent::forward("credito", "index", [$cid]);
 	}
-
+	
+	/*
+	 * Función para sumar totales en el crédito
+	 */
+	function CalcularAction(){
+		$cuotas = parent::gPost("cuotas");
+		$item = parent::gPost("item");
+		$monto = parent::gPost("monto");
+		$prima = parent::gPost("prima");
+		
+		$i = Item::findFirst("id = $item");
+		$monto = $monto + ($i->total * 1.035);
+		$prima = $prima + (($i->total * 1.035)/($cuotas + 1));
+		
+		$response = ['monto' => $monto, 'prima' => $prima];
+		return parent::sendJson($response);
+	}
 }
 ?>

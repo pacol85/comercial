@@ -1,5 +1,5 @@
 <?php
-class ItemsController extends ControllerBase
+class FacturaController extends ControllerBase
 {
 
 	public function indexAction()

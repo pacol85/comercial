@@ -243,7 +243,15 @@ class ControllerBase extends Controller {
 								"onkeyup" => "$n[1]"							
 						) );
 						$elem = $elem."</div><div id=\"livesearch\">";
-						break;						
+						break;	
+					case "cf" :
+						$elem = $elem . $this->tag->checkField(array ( 
+							"$n[0]",
+							"value" => "$n[1]",
+							"id" => "$n[0]",
+							"onClick" => "$n[2]"
+						));
+						break;					
 				}
 				$elem = $elem . '</div></div>';
 		}
@@ -586,5 +594,36 @@ class ControllerBase extends Controller {
 				break;
 		}
 		return $resultado;
+	}
+	
+	/**
+	 * Form con Tabla en medio
+	 */
+	public function formTabla($campos, $tabla, $posTabla, $action, $id = "id") {
+		$form = $this->tag->form ( array (
+				$action,
+				"autocomplete" => "off",
+				"class" => "form-horizontal",
+				"id" => "$id"
+		) );
+	
+		//counter para la posición de la tabla
+		$counter = 1;
+	
+		foreach ( $campos as $c ) {
+			$elem = "";
+			if($counter == $posTabla){
+				$elem = "<div id='ditems' class='ditems'>" . $elem . $this->ftable($tabla) . "</div>";
+			}
+			if (count ( $c ) > 3) {
+				$elem = $elem . ControllerBase::elemento ( $c [0], $c [1], $c [2], $c [3] );
+			} else
+				$elem = $elem . ControllerBase::elemento ( $c [0], $c [1], $c [2] );
+			$form = $form . $elem;
+			$counter++;
+		}
+	
+		$form = $form . $this->tag->endForm ();
+		return $form;
 	}
 }
