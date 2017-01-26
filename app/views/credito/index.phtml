@@ -6,10 +6,24 @@
 	} );
 
 	function addValor(id) {
+		var checkedValues = $('.cbitems:checked').map(function() {
+		    return this.value;
+		}).get();
+
+		var boxes; // = checkedValues.values();
+		var tb = "";
+		var i;
+		for (i = 0; i < checkedValues.length; i++) {
+			var f = "#n" + checkedValues[i];
+			tb += $(f).val() + ",";
+		}
+		tb = tb.substring(0, tb.length-1);
+		//alert(tb);
+		
 		$.ajax({
 			type: "POST",
 			url: "credito/calcular", 
-			data: {cuotas: $('#cuotas').val(), item: id, monto: $('#monto').val(), prima: $('#prima').val()},
+			data: {cuotas: $('#cuotas').val(), item: id, monto: $('#monto').val(), prima: $('#prima').val(), cb: checkedValues, tbox: tb},
 			dataType: "json",
 			success: function(result){
 				var jsondata = jQuery.parseJSON(JSON.stringify(result)); 

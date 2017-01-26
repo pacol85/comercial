@@ -28,8 +28,8 @@ class CreditoController extends ControllerBase
 				$i->marca, 
 				$i->modelo, 
 				$i->valor, 
-				parent::elemento("cf", ["check", "$i->id", "addValor('$i->id');"], ""),
-				parent::elemento("t", ["n$i->id"], "Cant.")
+				parent::elemento("cf", ["check", "$i->id", "addValor('$i->id');", "cbitems"], ""),
+				parent::elemento("tvcb", ["n$i->id", "1", "tbcant"], "Cant.")
 			]);
 		}
 		$form = parent::formTabla($campos, $table, 4, "credito/guardar/$cid", "form1");
@@ -422,15 +422,21 @@ function subidaAngelAction(){
 	 */
 	function CalcularAction(){
 		$cuotas = parent::gPost("cuotas");
-		$item = parent::gPost("item");
-		$monto = parent::gPost("monto");
-		$prima = parent::gPost("prima");
+		//$item = 0;//parent::gPost("item");
+		$monto = 0;//parent::gPost("monto");
+		$prima = 0; //parent::gPost("prima");
+		$cb = parent::gPost("cb");//explode(',', parent::gPost("cb"));
+		$tb = explode(',', parent::gPost("tbox"));
+		$pos = 0;
+		foreach ($cb as $c){
+			$i = Item::findFirst("id = $c");
+			$monto = $monto + ($i->total * 1.035 * $tb[$pos]);
+			$prima = $prima + (($i->total * 1.035 * $tb[$pos])/($cuotas + 1));
+			$pos = $pos + 1;			
+		}
 		
-		$i = Item::findFirst("id = $item");
-		$monto = $monto + ($i->total * 1.035);
-		$prima = $prima + (($i->total * 1.035)/($cuotas + 1));
 		
-		$response = ['monto' => $monto, 'prima' => $prima];
+		$response = ['monto' => $monto, 'prima' => $prima];//$prima]; //$monto
 		return parent::sendJson($response);
 	}
 }

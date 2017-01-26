@@ -249,9 +249,52 @@ class ControllerBase extends Controller {
 							"$n[0]",
 							"value" => "$n[1]",
 							"id" => "$n[0]",
-							"onClick" => "$n[2]"
+							"onClick" => "$n[2]",
+							"class" => "$n[3]"
 						));
-						break;					
+						break;
+					case "tcb" :
+						if ($r == 1) {
+							$elem = $elem . $this->tag->textField ( array (
+									"$n[0]",
+									"size" => 30,
+									"class" => "form-control $n[1]",
+									"id" => "$n[0]",
+									"readonly" => "",
+									"data-bind" => "value: regexInput, valueUpdate: 'keyup'"
+							) );
+						} else {
+							$elem = $elem . $this->tag->textField ( array (
+									"$n[0]",
+									"size" => 30,
+									"class" => "form-control $n[1]",
+									"id" => "$n[0]",
+									"data-bind" => "value: regexInput, valueUpdate: 'keyup'"
+							) );
+						}
+						break;
+					case "tvcb" :
+						if ($r == 1) {
+							$elem = $elem . $this->tag->textField ( array (
+									"$n[0]",
+									"size" => 30,
+									"class" => "form-control $n[2]",
+									"id" => "$n[0]",
+									"value" => "$n[1]",
+									"readonly" => "",
+									"data-bind" => "value: regexInput, valueUpdate: 'keyup'"
+							) );
+						} else {
+							$elem = $elem . $this->tag->textField ( array (
+									"$n[0]",
+									"size" => 30,
+									"class" => "form-control $n[2]",
+									"id" => "$n[0]",
+									"value" => "$n[1]",
+									"data-bind" => "value: regexInput, valueUpdate: 'keyup'"
+							) );
+						}
+						break;
 				}
 				$elem = $elem . '</div></div>';
 		}
