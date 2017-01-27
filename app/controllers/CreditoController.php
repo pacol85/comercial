@@ -16,6 +16,8 @@ class CreditoController extends ControllerBase
 				["m", ["monto", 0], "Monto"],
 				["m", ["prima", 0], "Prima"],
 				["h", ["id"], ""],
+				["h", ["mcb"], ""],
+				["h", ["mtb"], ""],
 				["s", [""], "Solicitud Inicial"]	
 		];
 
@@ -28,7 +30,7 @@ class CreditoController extends ControllerBase
 				$i->marca, 
 				$i->modelo, 
 				$i->valor, 
-				parent::elemento("cf", ["check", "$i->id", "addValor('$i->id');", "cbitems"], ""),
+				parent::elemento("cf", ["check$i->id", "$i->id", "addValor('$i->id');", "suma"], ""),
 				parent::elemento("tvcb", ["n$i->id", "1", "tbcant"], "Cant.")
 			]);
 		}
@@ -422,8 +424,23 @@ function subidaAngelAction(){
 	 */
 	function CalcularAction(){
 		$cuotas = parent::gPost("cuotas");
+		
+		$json_arreglo = parent::gPost("items");
+		$arreglo = json_decode($json_arreglo);
+		$monto = 0;
+		$prima = 0;
+		$error = "";
+		foreach ($arreglo as $a){			
+			if($a != 0 && $a != null){
+				//$error = $error.$b.",";
+				$i = Item::findFirst("id = $a[0]");
+				$monto = $monto + ($i->total * 1.035 * $a[1]);
+				$prima = $prima + (($i->total * 1.035 * $a[1])/($cuotas + 1));
+			}
+		}
+		
 		//$item = 0;//parent::gPost("item");
-		$monto = 0;//parent::gPost("monto");
+		/*$monto = 0;//parent::gPost("monto");
 		$prima = 0; //parent::gPost("prima");
 		$cb = parent::gPost("cb");//explode(',', parent::gPost("cb"));
 		$tb = explode(',', parent::gPost("tbox"));
@@ -434,7 +451,7 @@ function subidaAngelAction(){
 			$prima = $prima + (($i->total * 1.035 * $tb[$pos])/($cuotas + 1));
 			$pos = $pos + 1;			
 		}
-		
+		*/
 		
 		$response = ['monto' => $monto, 'prima' => $prima];//$prima]; //$monto
 		return parent::sendJson($response);

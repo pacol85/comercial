@@ -6,6 +6,24 @@
 	} );
 
 	function addValor(id) {
+		var name = "#check" + id;
+		var text = "#n" + id;
+		var jsona = $('#mcb').val();
+
+		
+		var arreglo = [];
+		arreglo.push(jsona);
+		
+		if($(name).hasClass("suma")){
+			$(name).removeClass("suma");
+			$(name).addClass("resta");
+			arreglo[id] = [id, $(text).val()];			
+		}else{
+			$(name).removeClass("resta");
+			$(name).addClass("suma");
+			arreglo[id] = 0;
+		}
+		/*
 		var checkedValues = $('.cbitems:checked').map(function() {
 		    return this.value;
 		}).get();
@@ -19,11 +37,16 @@
 		}
 		tb = tb.substring(0, tb.length-1);
 		//alert(tb);
+		*/
+
+		jsona = JSON.stringify( arreglo );
+		$('#mcb').val(jsona);
+		
 		
 		$.ajax({
 			type: "POST",
 			url: "credito/calcular", 
-			data: {cuotas: $('#cuotas').val(), item: id, monto: $('#monto').val(), prima: $('#prima').val(), cb: checkedValues, tbox: tb},
+			data: {cuotas: $('#cuotas').val(), items: jsona},
 			dataType: "json",
 			success: function(result){
 				var jsondata = jQuery.parseJSON(JSON.stringify(result)); 
