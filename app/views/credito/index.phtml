@@ -10,18 +10,19 @@
 		var text = "#n" + id;
 		var jsona = $('#mcb').val();
 
-		
-		var arreglo = [];
-		arreglo.push(jsona);
+		//alert(jsona);
+		var arreglo = jsonToArray(jsona);
+		//arreglo = jsona;
 		
 		if($(name).hasClass("suma")){
 			$(name).removeClass("suma");
 			$(name).addClass("resta");
-			arreglo[id] = [id, $(text).val()];			
+			var valor = $(text).val();
+			arreglo[parseInt(id)] = valor;
 		}else{
 			$(name).removeClass("resta");
 			$(name).addClass("suma");
-			arreglo[id] = 0;
+			arreglo[parseInt(id)] = 0;
 		}
 		/*
 		var checkedValues = $('.cbitems:checked').map(function() {
@@ -39,8 +40,8 @@
 		//alert(tb);
 		*/
 
-		jsona = JSON.stringify( arreglo );
-		$('#mcb').val(jsona);
+		jsona = arrayToJson(arreglo);
+		$('#mcb').val(jsona);//jsona);
 		
 		
 		$.ajax({
@@ -54,6 +55,24 @@
 				$("#prima").val(jsondata.prima);				
 			}});
 	};
+
+	function arrayToJson(map) {
+		if(map == "" || map == null || map == []){
+			return '{}';
+		}else{
+			return JSON.stringify(map);
+		}
+        
+    }
+    function jsonToArray(jsonStr) {
+    	if(jsonStr == '{}' || jsonStr == null || jsonStr == ""){
+        	var array = [];
+			return array;
+		}else{
+			return JSON.parse(jsonStr);
+		}
+        
+    }
 	
 	<?php echo $this->view->js;?>
 </script>

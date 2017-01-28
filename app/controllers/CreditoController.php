@@ -23,13 +23,20 @@ class CreditoController extends ControllerBase
 
 		$head1 = ["Cod.", "Marca", "Modelo", "Valor", "Seleccionar", "Cantidad"];
 		$table = parent::thead("titems", $head1);
+		
+		$cont = Parametros::findFirst("parametro like 'contado'");
+		$cred = Parametros::findFirst("parametro like 'icredito'");
+		
 		$items = Item::find();
 		foreach ($items as $i){
+			$tcont = parent::porcUp($i->total, $cont->valor);
+			$tcred = parent::porcUp($tcont, $cred->valor);
+			
 			$table = $table . parent::tbody([
 				$i->codigo, 
 				$i->marca, 
 				$i->modelo, 
-				$i->valor, 
+				$tcred, 
 				parent::elemento("cf", ["check$i->id", "$i->id", "addValor('$i->id');", "suma"], ""),
 				parent::elemento("tvcb", ["n$i->id", "1", "tbcant"], "Cant.")
 			]);
@@ -430,13 +437,21 @@ function subidaAngelAction(){
 		$monto = 0;
 		$prima = 0;
 		$error = "";
+		$pos = 0;
 		foreach ($arreglo as $a){			
 			if($a != 0 && $a != null){
 				//$error = $error.$b.",";
-				$i = Item::findFirst("id = $a[0]");
-				$monto = $monto + ($i->total * 1.035 * $a[1]);
-				$prima = $prima + (($i->total * 1.035 * $a[1])/($cuotas + 1));
+				$i = Item::findFirst("id = $pos");
+				$cont = Parametros::findFirst("parametro like 'contado'");
+				$cred = Parametros::findFirst("parametro like 'icredito'");
+				
+				$tcont = parent::porcUp($i->total, $cont->valor);
+				$tcred = parent::porcUp($tcont, $cred->valor) * $a;
+				
+				$monto = $monto + $tcred;
+				$prima = $prima + ($tcred/($cuotas + 1));
 			}
+			$pos = $pos + 1;
 		}
 		
 		//$item = 0;//parent::gPost("item");

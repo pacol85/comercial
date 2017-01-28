@@ -76,6 +76,8 @@ class FiadorController extends ControllerBase
     		$f->ctelefono = parent::gPost("ctofic");
     		$f->ctrabajo = parent::gPost("ctrabajo");
     		
+    		$f->cliente = $cid;
+    		
     		//Verificar si hay prestamo activo a su nombre o si existe ya como fiador de alguien más
     		$mensaje = "";
     		$fiadoresA = Fiador::find("dui like '$f->dui' or nombre like '$f->nombre' and aprobado = 1");

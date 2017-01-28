@@ -669,4 +669,18 @@ class ControllerBase extends Controller {
 		$form = $form . $this->tag->endForm ();
 		return $form;
 	}
+	
+	/**
+	 * Función para sumar en porcentaje una cantidad 
+	 */
+	public function porcUp($num, $porc){
+		return $num*(1 + $porc/100);
+	}
+	
+	/**
+	 * Función para restar en porcentaje una cantidad
+	 */
+	public function porcDown($num, $porc){
+		return $num/(1 + $porc/100);
+	}
 }

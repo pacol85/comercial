@@ -53,6 +53,8 @@ class ItemsController extends ControllerBase
 			} else {
 				//obten impuesto usual 13%
 				$imp = Parametros::findFirst("parametro like 'iva'");
+				//obten porc minimo
+				$min = Parametros::findFirst("parametro like 'minimo'");
 				
 				$i = new Item();
 				$i->codigo = $cod;
@@ -61,8 +63,8 @@ class ItemsController extends ControllerBase
 				$i->marca = parent::gPost("marca");
 				$i->modelo = parent::gPost("modelo");
 				$i->valor = parent::gPost("costo");
-				$i->total = $i->valor*(1 + $i->impuesto/100);
-				$i->minimo = $i->total*1.10; //para mientras un 10%
+				$i->total = parent::porcUp($i->valor, $i->impuesto); //costo mas impuesto
+				$i->minimo = $i->total*$min; 
 				if($i->save()){
 					parent::msg("El item fue creado exitosamente", "s");
 					
@@ -125,6 +127,8 @@ class ItemsController extends ControllerBase
 				} else {
 					//obten impuesto usual 13%
 					$imp = Parametros::findFirst("parametro like 'iva'");
+					//obten porc minimo
+					$min = Parametros::findFirst("parametro like 'minimo'");
 					
 					$i->codigo = $cod;
 					$i->descripcion = $desc;
@@ -132,8 +136,8 @@ class ItemsController extends ControllerBase
 					$i->marca = parent::gPost("marca");
 					$i->modelo = parent::gPost("modelo");
 					$i->valor = parent::gPost("costo");
-					$i->total = $i->valor*(1 + $i->impuesto/100);
-					$i->minimo = $i->total*1.10; //para mientras un 10%
+					$i->total = parent::porcUp($i->valor, $i->impuesto); //costo mas impuesto
+					$i->minimo = $i->total*$min; 
 					if($i->update()){
 						parent::msg("El item fue editado exitosamente", "s");
 					}else{
