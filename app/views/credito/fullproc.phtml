@@ -1,3 +1,68 @@
+<script type="text/javascript" language="javascript" class="init">
+	$(document).ready(function() {
+		$('#titems').DataTable();				
+	} );
+
+	function addValor(id) {
+		var name = "#check" + id;
+		var text = "#n" + id;
+		var jsona = $('#mcb').val();
+
+		var arreglo = jsonToArray(jsona);
+		
+		if($(name).hasClass("suma")){
+			$(name).removeClass("suma");
+			$(name).addClass("resta");
+			var valor = $(text).val();
+			arreglo[parseInt(id)] = valor;
+		}else{
+			$(name).removeClass("resta");
+			$(name).addClass("suma");
+			arreglo[parseInt(id)] = 0;
+		}
+
+		jsona = arrayToJson(arreglo);
+		$('#mcb').val(jsona);
+		
+		
+		$.ajax({
+			type: "POST",
+			url: "credito/calcular", 
+			data: {cuotas: $('#cuotas').val(), items: jsona},
+			dataType: "json",
+			success: function(result){
+				var jsondata = jQuery.parseJSON(JSON.stringify(result)); 
+				$("#monto").val(jsondata.monto);
+				$("#prima").val(jsondata.prima);				
+			}});
+	};
+
+	function arrayToJson(map) {
+		if(map == "" || map == null || map == []){
+			return '{}';
+		}else{
+			return JSON.stringify(map);
+		}
+        
+    }
+    function jsonToArray(jsonStr) {
+    	if(jsonStr == '{}' || jsonStr == null || jsonStr == ""){
+        	var array = [];
+			return array;
+		}else{
+			return JSON.parse(jsonStr);
+		}
+        
+    }
+</script>
+<style>
+.ditems {
+    position: relative;
+    clear: both;
+    width: 90%;
+    left: 110px;
+}
+</style>
 <?php 
 echo $this->view->titulo;
 echo $this->getContent();

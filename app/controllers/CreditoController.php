@@ -84,8 +84,12 @@ class CreditoController extends ControllerBase
 	}
 	
 	public function guardarAction($cid){
-		if(parent::vPost("monto") && parent::vPost("fsolicitud") && parent::vPost("interes") && parent::vPost("prima") &&
-				parent::vPost("cuotas")){
+		if(parent::vPost("fsolicitud") && parent::vPost("cuotas") && parent::vPost("items")){
+			$cuotas = parent::gPost("cuotas");
+			$json_arreglo = parent::gPost("items");
+			//usar funcion para calcular monto total y prima
+			$myp = $this->CalcularJson($json_arreglo, $cuotas);
+			
 			$c = new CreditoXCliente();
 			$c->cliente = $cid;
 			$c->fsolicitud = parent::gPost("fsolicitud");
@@ -106,6 +110,7 @@ class CreditoController extends ControllerBase
 					$cuota->credito = $c->id;
 					$cuota->fechaPago = parent::datePlus2($c->fsolicitud, $i, "m");
 					$cuota->monto = 0;
+					$cuota->prima = 0;
 					$cuota->save();
 				}
 			}else{
@@ -362,33 +367,60 @@ function subidaAngelAction(){
 		$sucursales = Sucursal::find();
 		$campos = [
 				["sdb", ["suc", $sucursales, ["id", "nombre"]], "Sucursal"],
-				["m", ["monto", 0], "Monto"],
 				["d", ["fsolicitud", $hoy], "Fecha Solicitud"],
-				["m", ["prima", 0], "Prima"],
 				["m", ["cuotas", 0], "Cuotas"],
+				["m", ["monto", 0], "Monto"],
+				["m", ["prima", 0], "Prima"],
 				["h", ["id"], ""],
-				["s", [""], "Solicitud Inicial"]
+				["h", ["mcb"], ""],
+				["h", ["mtb"], ""],
+				["s", [""], "Solicitud Inicial"]	
 		];
-		$form = parent::form($campos, "credito/guardarfull/$cid/$fid", "form1");
-	
+		
+		$head1 = ["Cod.", "Marca", "Modelo", "Valor", "Seleccionar", "Cantidad"];
+		$table = parent::thead("titems", $head1);
+		
+		$cont = Parametros::findFirst("parametro like 'contado'");
+		$cred = Parametros::findFirst("parametro like 'icredito'");
+		
+		$items = Item::find();
+		foreach ($items as $i){
+			$tcont = parent::porcUp($i->total, $cont->valor);
+			$tcred = parent::porcUp($tcont, $cred->valor);
+				
+			$table = $table . parent::tbody([
+					$i->codigo,
+					$i->marca,
+					$i->modelo,
+					$tcred,
+					parent::elemento("cf", ["check$i->id", "$i->id", "addValor('$i->id');", "suma"], ""),
+					parent::elemento("tvcb", ["n$i->id", "1", "tbcant"], "Cant.")
+			]);
+		}
+		$form = parent::formTabla($campos, $table, 4, "credito/guardarfull/$cid/$fid", "form1");
+		
 		parent::view("Cr&eacute;dito", $form);
 	}
 	
 	public function guardarfullAction($cid, $fid){
-		if(parent::vPost("monto") && parent::vPost("fsolicitud") && parent::vPost("prima") &&
-				parent::vPost("cuotas")){
+		if(parent::vPost("fsolicitud") && parent::vPost("cuotas") && parent::vPost("mcb")){
+			$cuotas = parent::gPost("cuotas");
+			$json_arreglo = parent::gPost("mcb");
+			//usar funcion para calcular monto total y prima
+			$myp = $this->CalcularJson($json_arreglo, $cuotas);
+			
 			$c = new CreditoXCliente();
 			$c->cliente = $cid;
 			$c->fsolicitud = parent::gPost("fsolicitud");
 			$i = Parametros::findFirst("parametro like 'icredito'");
 			$c->interes = $i->valor;
-			$c->monto = parent::gPost("monto");
-			$c->prima = parent::gPost("prima");
+			$c->monto = $myp["monto"];
+			$c->prima = $myp["prima"];
 			$c->diaCorte = parent::gDay($c->fsolicitud);
-			$cuotas = parent::gPost("cuotas");
-			$loan = new LoanRequest($c->monto, $c->interes, $cuotas);
-			$result = $loan->calculate();
-			$c->cuotaBase = $result->getMonthlyPayment();
+			
+			//$loan = new LoanRequest($c->monto, $c->interes, $cuotas);
+			//$result = $loan->calculate();
+			$c->cuotaBase = $myp["prima"];//$result->getMonthlyPayment();
 			
 			//$cliente = Cliente::findFirst("id = $cid");
 			$referencias = Referencia::find("cliente = $cid");
@@ -411,17 +443,20 @@ function subidaAngelAction(){
 					$cuota->credito = $c->id;
 					$cuota->fechaPago = parent::datePlus2($c->fsolicitud, $i, "m");
 					$cuota->monto = 0;
-					$cuota->save();
+					$cuota->prima = 0;
+					if(!$cuota->save()){
+						parent::msg("Fallo cuota $i");
+					}
 				}
 			}else{
 				parent::msg("Ocurri&oacute; un error durante la transacci&oacute;n");
 				/*parent::msg("$c->cliente, $c->fsolicitud, $c->interes, $c->monto, $c->prima, $c->diaCorte, $c->cuotaBase, $c->pariente, 
 						$c->amigo, $c->fiador");*/
-				return parent::forward("credito", "fullproc", [$cid, $fid]);
+				return parent::forward("credito", "fullproc", [$cid,$fid]);
 			}
 		}else{
 			parent::msg("Aseg&uacute;rese de llenar todos los campos");
-			return parent::forward("credito", "fullproc", [$cid, $fid]);
+			return parent::forward("credito", "fullproc", [$cid,$fid]);
 		}
 		parent::forward("credito", "index", [$cid]);
 	}
@@ -433,43 +468,34 @@ function subidaAngelAction(){
 		$cuotas = parent::gPost("cuotas");
 		
 		$json_arreglo = parent::gPost("items");
+		$response = $this->CalcularJson($json_arreglo, $cuotas);
+		return parent::sendJson($response);
+	}
+	
+	public function CalcularJson($json_arreglo, $cuotas){
 		$arreglo = json_decode($json_arreglo);
 		$monto = 0;
 		$prima = 0;
 		$error = "";
 		$pos = 0;
-		foreach ($arreglo as $a){			
+		foreach ($arreglo as $a){
 			if($a != 0 && $a != null){
 				//$error = $error.$b.",";
 				$i = Item::findFirst("id = $pos");
 				$cont = Parametros::findFirst("parametro like 'contado'");
 				$cred = Parametros::findFirst("parametro like 'icredito'");
-				
+		
 				$tcont = parent::porcUp($i->total, $cont->valor);
 				$tcred = parent::porcUp($tcont, $cred->valor) * $a;
-				
+		
 				$monto = $monto + $tcred;
 				$prima = $prima + ($tcred/($cuotas + 1));
 			}
 			$pos = $pos + 1;
 		}
 		
-		//$item = 0;//parent::gPost("item");
-		/*$monto = 0;//parent::gPost("monto");
-		$prima = 0; //parent::gPost("prima");
-		$cb = parent::gPost("cb");//explode(',', parent::gPost("cb"));
-		$tb = explode(',', parent::gPost("tbox"));
-		$pos = 0;
-		foreach ($cb as $c){
-			$i = Item::findFirst("id = $c");
-			$monto = $monto + ($i->total * 1.035 * $tb[$pos]);
-			$prima = $prima + (($i->total * 1.035 * $tb[$pos])/($cuotas + 1));
-			$pos = $pos + 1;			
-		}
-		*/
-		
-		$response = ['monto' => $monto, 'prima' => $prima];//$prima]; //$monto
-		return parent::sendJson($response);
+		$response = ['monto' => $monto, 'prima' => $prima];
+		return $response;
 	}
 }
 ?>
