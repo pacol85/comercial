@@ -68,8 +68,9 @@ class ClienteController extends ControllerBase
 							$c->propietario."', '".$c->trabajo."', '".$c->areaTrab."', '".$c->cargo."', '".$c->jefe."', '".
 							$c->pagador."', '".$c->fdesde."', '".$c->sueldo."', '".$c->telOficina."', '".$c->dirtrab."')", "Editar")." | ".
 					parent::a(1, "credito/index/$c->id", "Cr&eacute;ditos")." | ".
-					parent::a(1, "familiar/index/$c->id", "Familiares")." | ".
-					parent::a(1, "amigo/index/$c->id", "Amigos")." | ".
+					parent::a(1, "referencia/index2/$c->id/1", "C&oacute;nyugue")." | ".
+					parent::a(1, "referencia/index2/$c->id/2", "Familiar")." | ".
+					parent::a(1, "referencia/index2/$c->id/3", "Amigos")." | ".
 					parent::a(1, "fiador/index/$c->id", "Fiadores")
 			]);
 		}		

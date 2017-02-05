@@ -145,4 +145,128 @@ class ReferenciaController extends ControllerBase
     	}
     	parent::forward("parentesco", "index");
     }
+
+    public function index2Action($cid, $tipoRef)
+    {
+    	parent::limpiar();
+    	$titulo = "Amigos";
+    	
+    	$head = ["Nombre", "Direcci&oacute;n", "Tel&eacute;fono", "Trabajo", "Departamento", 
+    			"Cargo", "Desde", "Tel. Oficina", "Referencias", "Acciones"];
+    	$tabla = parent::thead("treferencia", $head);
+    	//js
+    	$fields = ["id", "nombre", "dir", "tel", "trabajo", "area", "cargo", "desde", "telOfic", "ref"];
+    	$otros = "";
+    	$jsBotones = ["form1", "referencia/edit/$cid/$tipoRef", "referencia"];
+    	
+    	//campos según tipo
+    	$campos = [];
+    	
+    	switch ($tipoRef) {
+    		case 1: //conyugue
+    			$campos = [
+    			["t", ["nombre"], "Nombre"],
+    			["h", ["id"], ""],
+    			["t", ["trabajo"], "Trabajo"],
+    			["m", ["sueldo", 0], "Sueldo"],
+    			["t", ["area"], "Departamento"],
+    			["t", ["cargo"], "Cargo"],
+    			["t", ["jefe"], "Jefe"],
+    			["d", ["desde"], "Desde"],
+    			["t", ["tel"], "Tel&eacute;fono"],
+    			["t", ["dir"], "Dir. Trabajo"],
+    			["s", ["guardar"], "Guardar"]
+    			];
+    			$titulo = "C&oacute;nyugue";
+    			
+    			$head = ["Nombre", "Trabajo", "Sueldo", "Departamento", "Cargo", 
+    					"Jefe", "Desde", "Tel&eacute;fono", "Dir. Trabajo", "Acciones"];
+    			$tabla = parent::thead("treferencia", $head);
+    			//js
+    			$fields = ["id", "nombre", "trabajo", "sueldo", "area", "cargo", 
+		   			"jefe", "desde", "tel", "dir"];
+    			
+    			$referencias = Referencia::find("cliente = $cid and pariente = 1 and parentesco = 1");
+    			foreach ($referencias as $r){
+    				$tabla = $tabla.parent::tbody([
+    						$r->nombre,	$r->trabajo, $r->sueldo,
+    						$r->areaTrab, $r->cargo, $r->jefe, 
+    						$r->fdesde, $r->telefono, $r->direccion,
+    						parent::a(2, "cargarDatos('".$r->id."','".$r->nombre."');", "Editar")." | ".
+    						parent::a(1, "referencia/eliminar/$r->id", "Eliminar")
+    				]);
+    			}
+    			
+    			break;
+    		case 2: //parientes
+    			$par = Parentesco::find();
+    			$campos = [
+    					["t", ["nombre"], "Nombre"],
+    					["h", ["id"], ""],
+    					["sdb", ["par", $par, ["id", "parentesco"]], "Parentesco"],
+    					["t", ["dir"], "Direcci&oacute;n"],
+    					["t", ["tel"], "Tel&eacute;fono"],
+    					["t", ["trabajo"], "Trabajo"],
+    					["t", ["area"], "Departamento"],
+    					["t", ["cargo"], "Cargo"],
+    					["d", ["desde"], "Desde"],
+    					["t", ["telOfic"], "Tel. Oficina"],
+    					["s", ["guardar"], "Guardar"]
+    			];
+    			$titulo = "Parientes";
+    			
+    			$head = ["Nombre", "Parentesco", "Direcci&oacute;n", "Tel&eacute;fono", 
+    					"Trabajo", "Departamento", "Cargo", "Desde", "Tel. Oficina", "Acciones"];
+    			$tabla = parent::thead("treferencia", $head);
+    			//js
+    			$fields = ["id", "nombre", "par", "dir", "tel", "trabajo", "area", "cargo", 
+    					"desde", "telOfic"];
+    			
+    			$referencias = Referencia::find("cliente = $cid and pariente = 1 and parentesco not like 1");
+    			foreach ($referencias as $r){
+    				$par2 = Parentesco::findFirst("id = $r->parentesco");
+    				$tabla = $tabla.parent::tbody([
+    						$r->nombre,	$par2->parentesco, $r->direccion, 
+    						$r->telefono, $r->trabajo, $r->areaTrab, 
+    						$r->cargo, $r->fdesde, $r->telOficina, 
+    						parent::a(2, "cargarDatos('".$r->id."','".$r->nombre."');", "Editar")." | ".
+    						parent::a(1, "referencia/eliminar/$r->id", "Eliminar")
+    				]);
+    			}
+    			
+    			break;
+    		default: //amigos
+    			$campos = [
+    			["t", ["nombre"], "Nombre"],
+    			["h", ["id"], ""],
+    			["t", ["dir"], "Direcci&oacute;n"],
+    			["t", ["tel"], "Tel&eacute;fono"],
+    			["t", ["trabajo"], "Trabajo"],
+    			["t", ["area"], "Departamento"],
+    			["t", ["cargo"], "Cargo"],
+    			["d", ["desde"], "Desde"],
+    			["t", ["telOfic"], "Tel. Oficina"],
+    			["t", ["ref"], "Referencias"],
+    			["s", ["guardar"], "Guardar"]
+    			];
+    			//$head = ["Nombre", "Trabajo", "Sueldo", "Departamento", "Cargo",
+    			//		"Jefe", "Desde", "Tel&eacute;fono", "Dir. Trabajo"];
+    			$referencias = Referencia::find("cliente = $cid and pariente = 0");
+    			foreach ($referencias as $r){
+    				$tabla = $tabla.parent::tbody([
+    						$r->nombre,	$r->trabajo, $r->sueldo,
+    						$r->areaTrab, $r->cargo, $r->jefe,
+    						$r->fdesde, $r->telefono, $r->direccion,
+    						parent::a(2, "cargarDatos('".$r->id."','".$r->nombre."');", "Editar")." | ".
+    						parent::a(1, "referencia/eliminar/$r->id", "Eliminar")
+    				]);
+    			}
+    			break;
+    	}
+
+    	$form = parent::form($campos, "referencia/guardar/$cid/$tipoRef", "form1");
+    		
+    	parent::view($titulo, $form, $tabla, [$fields, $otros, $jsBotones]);
+    }
+    
 }
