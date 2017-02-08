@@ -93,6 +93,8 @@ class ReferenciaController extends ControllerBase
     		$ref->telOficina = parent::gPost("telOfic");
     		$ref->trabajo = parent::gPost("trabajo");
     		$ref->validez = 0; //no ha sido validado
+    		$ref->fdesde = parent::gPost("desde");
+    		$ref->fcreacion = parent::fechaHoy(true);
     		
     		if($ref->save()){
     			parent::msg("Referencia creada exitosamente", "s");
@@ -114,36 +116,49 @@ class ReferenciaController extends ControllerBase
     	parent::forward("referencia", "index", [$cid, $tipoRef]);
     }
     
-    public function eliminarAction(){
-    	$par = Parentesco::findFirst("id = ".parent::gReq("id"));
-    	$ref = Referencia::find(array("parentesco = $par->id"));
-    	if(count($ref) > 0){
-    		parent::msg("No se puede eliminar un Parentesco que tenga asociado uno o m&aacute;s Referencias", "w");
-    	}else {
-    		$parentesco = $par->parentesco;    		 
-    		if($par->delete()){
-    			parent::msg("Se elimin&oacute; el Parentesco: $parentesco", "s");
+    public function eliminarAction($rid){
+    	$ref = Referencia::findFirst("id = $rid");
+    	$referencia = $ref->nombre;    		 
+    		if($ref->delete()){
+    			parent::msg("Se elimin&oacute; la Referencia: $referencia", "s");
     		}else{
     			parent::msg("","db");
-    		}
-    	}    	
-    	parent::forward("parentesco", "index");
+    		}	
+    	parent::forward("cliente", "index");
     }
 
     public function editAction(){
-    	if(parent::vPost("id")){
-    		$par = Parentesco::findFirst("id = ".parent::gPost("id"));
-    		$par->parentesco = parent::gPost("parentesco");
-    		$par->desc = parent::gPost("desc");
-    		if($par->update()){
-    			parent::msg("Parentesco modificado exitosamente", "s");
+    	$tipoRef = parent::gPost("tipoRef");
+    	$rid = parent::gPost("id");
+    	$ref = Referencia::findFirst("id = $rid");
+    	if(parent::vPost("nombre")){    		
+    		$ref->areaTrab = parent::gPost("area");
+    		$ref->cargo = parent::gPost("cargo");
+    		$ref->direccion = parent::gPost("dir");
+    		$ref->fcreacion = parent::fechaHoy(true);
+    		$ref->jefe = parent::gPost("jefe");
+    		$ref->nombre = parent::gPost("nombre");
+    		if($tipoRef == 2) {
+    			$ref->parentesco = parent::gPost("par");
+    		}
+    		$ref->referencias = parent::gPost("ref");
+    		$ref->sueldo = parent::gPost("sueldo");
+    		$ref->telefono = parent::gPost("tel");
+    		$ref->telOficina = parent::gPost("telOfic");
+    		$ref->trabajo = parent::gPost("trabajo");
+    		$ref->validez = 0; //no ha sido validado
+    		$ref->fdesde = parent::gPost("desde");
+    		$ref->fmod = parent::fechaHoy(true);
+    		
+    		if($ref->update()){
+    			parent::msg("Referencia editada exitosamente", "s");    			
     		}else{
-    			parent::msg("", "db");
+    			parent::msg("Ocurri&oacute; un error durante la operación");
     		}
     	}else{
-    		parent::msg("Ocurri&oacute; un error al cargar el Parentesco");
+    		parent::msg("El nombre no puede quedar en blanco");    		
     	}
-    	parent::forward("parentesco", "index");
+    	parent::forward("referencia", "index2", [$ref->cliente, $tipoRef]);
     }
 
     public function index2Action($cid, $tipoRef)
@@ -157,7 +172,7 @@ class ReferenciaController extends ControllerBase
     	//js
     	$fields = ["id", "nombre", "dir", "tel", "trabajo", "area", "cargo", "desde", "telOfic", "ref"];
     	$otros = "";
-    	$jsBotones = ["form1", "referencia/edit/$cid/$tipoRef", "referencia"];
+    	$jsBotones = ["form1", "referencia/edit/$cid/$tipoRef", "referencia/index2/$cid/$tipoRef"];
     	
     	//campos según tipo
     	$campos = [];
@@ -175,7 +190,8 @@ class ReferenciaController extends ControllerBase
     			["d", ["desde"], "Desde"],
     			["t", ["tel"], "Tel&eacute;fono"],
     			["t", ["dir"], "Dir. Trabajo"],
-    			["s", ["guardar"], "Guardar"]
+    			["s", ["guardar"], "Guardar"],
+    			["h", ["tipoRef"], "1"]
     			];
     			$titulo = "C&oacute;nyugue";
     			
@@ -192,7 +208,9 @@ class ReferenciaController extends ControllerBase
     						$r->nombre,	$r->trabajo, $r->sueldo,
     						$r->areaTrab, $r->cargo, $r->jefe, 
     						$r->fdesde, $r->telefono, $r->direccion,
-    						parent::a(2, "cargarDatos('".$r->id."','".$r->nombre."');", "Editar")." | ".
+    						parent::a(2, "cargarDatos('".$r->id."','".$r->nombre."','".$r->trabajo
+    								."','".$r->sueldo."','".$r->areaTrab."','".$r->cargo."','".$r->jefe
+    								."','".$r->fdesde."','".$r->telefono."','".$r->direccion."');", "Editar")." | ".
     						parent::a(1, "referencia/eliminar/$r->id", "Eliminar")
     				]);
     			}
@@ -211,7 +229,8 @@ class ReferenciaController extends ControllerBase
     					["t", ["cargo"], "Cargo"],
     					["d", ["desde"], "Desde"],
     					["t", ["telOfic"], "Tel. Oficina"],
-    					["s", ["guardar"], "Guardar"]
+    					["s", ["guardar"], "Guardar"],
+    					["h", ["tipoRef"], "2"]
     			];
     			$titulo = "Parientes";
     			
@@ -229,7 +248,9 @@ class ReferenciaController extends ControllerBase
     						$r->nombre,	$par2->parentesco, $r->direccion, 
     						$r->telefono, $r->trabajo, $r->areaTrab, 
     						$r->cargo, $r->fdesde, $r->telOficina, 
-    						parent::a(2, "cargarDatos('".$r->id."','".$r->nombre."');", "Editar")." | ".
+    						parent::a(2, "cargarDatos('".$r->id."','".$r->nombre."','".$r->parentesco."','".$r->direccion
+    								."','".$r->telefono."','".$r->trabajo."','".$r->areaTrab."','".$r->cargo
+    								."','".$r->fdesde."','".$r->telOficina."');", "Editar")." | ".
     						parent::a(1, "referencia/eliminar/$r->id", "Eliminar")
     				]);
     			}
@@ -247,17 +268,21 @@ class ReferenciaController extends ControllerBase
     			["d", ["desde"], "Desde"],
     			["t", ["telOfic"], "Tel. Oficina"],
     			["t", ["ref"], "Referencias"],
-    			["s", ["guardar"], "Guardar"]
+    			["s", ["guardar"], "Guardar"],
+    			["h", ["tipoRef"], "3"]
     			];
     			//$head = ["Nombre", "Trabajo", "Sueldo", "Departamento", "Cargo",
     			//		"Jefe", "Desde", "Tel&eacute;fono", "Dir. Trabajo"];
+    			//$fields = ["id", "nombre", "dir", "tel", "trabajo", "area", "cargo", "desde", "telOfic", "ref"];
     			$referencias = Referencia::find("cliente = $cid and pariente = 0");
     			foreach ($referencias as $r){
     				$tabla = $tabla.parent::tbody([
     						$r->nombre,	$r->trabajo, $r->sueldo,
     						$r->areaTrab, $r->cargo, $r->jefe,
     						$r->fdesde, $r->telefono, $r->direccion,
-    						parent::a(2, "cargarDatos('".$r->id."','".$r->nombre."');", "Editar")." | ".
+    						parent::a(2, "cargarDatos('".$r->id."','".$r->nombre."','".$r->direccion
+    								."','".$r->telefono."','".$r->trabajo."','".$r->areaTrab."','".$r->cargo
+    								."','".$r->fdesde."','".$r->telOficina."','".$r->referencias."');", "Editar")." | ".
     						parent::a(1, "referencia/eliminar/$r->id", "Eliminar")
     				]);
     			}
@@ -267,6 +292,44 @@ class ReferenciaController extends ControllerBase
     	$form = parent::form($campos, "referencia/guardar/$cid/$tipoRef", "form1");
     		
     	parent::view($titulo, $form, $tabla, [$fields, $otros, $jsBotones]);
+    }
+    
+    public function guardarAction($cid, $tipoRef){
+    	if(parent::vPost("nombre")){
+    		$ref = new Referencia();
+    		$ref->areaTrab = parent::gPost("area");
+    		$ref->cargo = parent::gPost("cargo");
+    		$ref->cliente = $cid;
+    		$ref->direccion = parent::gPost("dir");
+    		$ref->fcreacion = parent::fechaHoy(true);
+    		$ref->jefe = parent::gPost("jefe");
+    		$ref->nombre = parent::gPost("nombre");
+    		if($tipoRef == 1) {
+    			$ref->parentesco = 1;
+    		}else {
+    			$ref->parentesco = parent::gPost("par");
+    		}
+    		if($tipoRef == 3){
+    			$ref->pariente = 0;
+    		}else $ref->pariente = 1;
+    		$ref->referencias = parent::gPost("ref");
+    		$ref->sueldo = parent::gPost("sueldo");
+    		$ref->telefono = parent::gPost("tel");
+    		$ref->telOficina = parent::gPost("telOfic");
+    		$ref->trabajo = parent::gPost("trabajo");
+    		$ref->validez = 0; //no ha sido validado
+    		$ref->fdesde = parent::gPost("desde");
+    		$ref->fcreacion = parent::fechaHoy(true);
+    
+    		if($ref->save()){
+    			parent::msg("Referencia creada exitosamente", "s");    			
+    		}else{
+    			parent::msg("Ocurri&oacute; un error durante la operación");
+    		}
+    	}else{
+    		parent::msg("Como m&iacute;nimo el nombre debe ser incluido");
+    	}
+    	parent::forward("referencia", "index2", [$cid, $tipoRef]);
     }
     
 }

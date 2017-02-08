@@ -176,6 +176,12 @@ class Fiador extends \Phalcon\Mvc\Model
      * @var string
      */
     public $cliente;
+    
+    /**
+     *
+     * @var string
+     */
+    public $nit;
 
     /**
      * Initialize method for model.

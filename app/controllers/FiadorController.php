@@ -27,7 +27,8 @@ class FiadorController extends ControllerBase
 			["t", ["tofic"], "Tel&eacute;fono Oficina"],
 			["t", ["dirtrab"], "Dir. Trabajo"],
 			["t", ["dui"], "DUI"],
-			["t", ["expedido"], "Lugar Expedici&oacute;n"],				
+			["t", ["expedido"], "Lugar Expedici&oacute;n"],
+			["t", ["nit"], "NIT"],
 			["d", ["fexpedicion"], "Fecha Expedici&oacute;n"],
 			["t", ["conyugue"], "Nombre C&oacute;nyugue"],
 			["t", ["ctrabajo"], "Trabajo"],
@@ -58,6 +59,7 @@ class FiadorController extends ControllerBase
     		$f->fcreacion = parent::fechaHoy(true);
     		$f->fexpedicion = parent::gPost("fexpedicion");
     		$f->jefe = parent::gPost("jefe");
+    		$f->nit = parent::gPost("nit");
     		$f->nombre = parent::gPost("nombre");
     		$f->pagador = parent::gPost("pagador");
     		$f->parentesco = parent::gPost("par");

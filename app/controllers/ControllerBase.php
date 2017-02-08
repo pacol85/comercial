@@ -683,4 +683,14 @@ class ControllerBase extends Controller {
 	public function porcDown($num, $porc){
 		return $num/(1 + $porc/100);
 	}
+	
+	/**
+	 * Sends the ajax response
+	 */ 
+	public function sendAjax($data) {
+		$this->view->disable ();
+		$this->response->setContentType ( 'application/text', 'UTF-8' );
+		$this->response->setContent ( $data );
+		return $this->response;
+	}
 }

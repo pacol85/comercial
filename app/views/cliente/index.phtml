@@ -1,20 +1,73 @@
 <script type="text/javascript" language="javascript" class="init">
+var listDept;
+var listD;
 	$(document).ready(function() {
 		$('#clientes').DataTable();			
 		$('.edit').hide();
-		$('#dept').change(function() {
+		/*$('#dept').change(function() {
 			$.ajax({
 				type: "POST",
-				url: "cliente/listMunicipio", 
+				url: "cliente/autoMuni", 
 				data: {dept: $('#dept').val()},
 				dataType: "json",
 				success: function(result){
-					var jsondata = jQuery.parseJSON(JSON.stringify(result)); 
-					$("#mdiv").html(jsondata.select);
+					//var jsondata = jQuery.parseJSON(JSON.stringify(result)); 
+					//$("#listMuni").val(result);//jsondata.select);
+					 
 				}});
-		});
+		});*/
+		listD = $('#listDept').val();//JSON.stringify();
+		var texto = $('#listDept').val();
+		listDept = texto.split(",");//jQuery.parseJSON(listD);
+		 $("#dept").autocomplete({
+			    source:[listDept]
+			  });
+		  var listMuni;
+		  var lm;
+		 $('#dept').on('selected.xdsoft', function(event, item){
+			 $.ajax({
+					type: "POST",
+					url: "cliente/autoMuni", 
+					data: {dept: $('#dept').val()},
+					dataType: "text",
+					success: function(result){
+						listMuni = result.split(",");
+						
+					}});
+			 //listMuni = lm.split(",");
+			 $("#muni").autocomplete({
+				    source:[listMuni]
+				  });
+			 });
+		 /*$('#dept').autocompleter({
+	        // marker for autocomplete matches
+	        highlightMatches: true,
+
+	        // object to local or url to remote search
+	        source: listDept,
+
+	        // custom template
+	        template: '{{ nombre }}',
+
+	        // show hint
+	        hint: true,
+
+	        // abort source if empty field
+	        empty: false,
+
+	        // max results
+	        limit: 5,
+
+	        callback: function (value, index, selected) {
+	            if (selected) {
+	                $('#deptid').val(selected.id);
+	            }
+	        }
+	    });*/
 	} );
 	<?php echo $this->view->js;?>
+
+	
 </script>
 
 <?php 
