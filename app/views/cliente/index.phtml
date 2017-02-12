@@ -16,13 +16,13 @@ var listD;
 					 
 				}});
 		});*/
-		listD = $('#listDept').val();//JSON.stringify();
+		//listD = $('#listDept').val();//JSON.stringify();
 		var texto = $('#listDept').val();
-		listDept = texto.split(",");//jQuery.parseJSON(listD);
+		listDept = texto.split(";");//jQuery.parseJSON(listD);
 		 $("#dept").autocomplete({
 			    source:[listDept]
 			  });
-		  var listMuni;
+		 /* var listMuni;
 		  var lm;
 		 $('#dept').on('selected.xdsoft', function(event, item){
 			 $.ajax({
@@ -32,13 +32,13 @@ var listD;
 					dataType: "text",
 					success: function(result){
 						listMuni = result.split(",");
-						
+						$("#muni").autocomplete({
+						    source:[listMuni]
+						  });
+					 
 					}});
 			 //listMuni = lm.split(",");
-			 $("#muni").autocomplete({
-				    source:[listMuni]
-				  });
-			 });
+		 });*/
 		 /*$('#dept').autocompleter({
 	        // marker for autocomplete matches
 	        highlightMatches: true,

@@ -9,12 +9,15 @@ class ClienteController extends ControllerBase
 		$dept = Departamentos::find();
 		$data = "";
 		foreach ($dept as $d){
-			$data = $data."$d->nombre,";
+			$munis = Municipios::find("departamento = $d->id");
+			foreach ($munis as $m){
+				$data = $data."$m->nombre, $d->nombre;";
+			}			
 		}
 		$data = substr($data, 0, strlen($data)-1);
 		//
-		$d = $dept->getFirst();
-		$muni = Municipios::find("departamento = $d->id");
+		//$d = $dept->getFirst();
+		//$muni = Municipios::find("departamento = $d->id");
 		//["ls", ["municipio", "municipios('ajax/municipios')"], "Municipio"],
 		//["sdb", ["dept", $dept, ["id", "nombre"]], "Departamento"],
 		
@@ -25,13 +28,13 @@ class ClienteController extends ControllerBase
 				["t", ["lugar"], "Lugar Expedici&oacute;n"],
 				["t", ["nit"], "NIT"],
 				["t", ["dir"], "Direcci&oacute;n"],
-				["t", ["dept"], "Departamento"],
+				["t", ["dept"], "Municipio, Departamento"],
 				["h", ["deptid"], ""],
 				["h", ["listDept"], $data],//json_encode ( $data )],
-				["t", ["muni"], "Municipio"],
-				["h", ["listMuni"], ""],
+				//["t", ["muni"], "Municipio"],
+				//["h", ["listMuni"], ""],
 				//["sdb", ["muni", $muni, ["id", "nombre"]], "Municipio", "mdiv"],
-				["h", ["mid"], ""],
+				//["h", ["mid"], ""],
 				["t", ["cel"], "Celular"],
 				["t", ["telCasa"], "Tel&eacute;fono Casa"],
 				["sel", ["alquila", ["1" => "S&iacute;", "0" => "No"]], "Alquila"],
@@ -76,7 +79,7 @@ class ClienteController extends ControllerBase
 					$c->celular,
 					parent::a(2, "cargarDatos('".$c->id."', '".$c->nombre."', '".$c->dui."', '".
 							$c->fexpedicion."', '".$c->lugarExpedicion."', '".$c->nit."', '".$c->direccion."', '".
-							$depto->nombre."', '".$m->nombre."', '".$c->celular."', '".$c->telcasa."', '".$c->alquila."', '".
+							$m->nombre.", ".$depto->nombre."', '".$c->celular."', '".$c->telcasa."', '".$c->alquila."', '".
 							$c->propietario."', '".$c->trabajo."', '".$c->areaTrab."', '".$c->cargo."', '".$c->jefe."', '".
 							$c->pagador."', '".$c->fdesde."', '".$c->sueldo."', '".$c->telOficina."', '".$c->dirtrab."')", "Editar")." | ".
 					parent::a(1, "credito/index/$c->id", "Cr&eacute;ditos")." | ".
@@ -88,7 +91,7 @@ class ClienteController extends ControllerBase
 		}		
 		
 		//js
-		$fields = ["id", "nombre", "dui", "expedicion", "lugar", "nit", "dir", "dept", "muni", "cel", "telCasa", "alquila", 
+		$fields = ["id", "nombre", "dui", "expedicion", "lugar", "nit", "dir", "dept", "cel", "telCasa", "alquila", 
 				"propietario", "trabajo", "area", "cargo", "jefe", "pagador", "fdesde", "sueldo", "tofic", "dirtrab"];
 		$otros = "";
 		$jsBotones = ["form1", "cliente/edit", "cliente/index"];
@@ -98,8 +101,7 @@ class ClienteController extends ControllerBase
 	
 	public function guardarAction(){
 		if(parent::vPost("nombre") && parent::vPost("dui") && parent::vPost("dir") && parent::vPost("trabajo") &&
-				parent::vPost("fdesde") && parent::vPost("sueldo") && parent::vPost("nit") && parent::vPost("dept") &&
-				parent::vPost("muni")){
+				parent::vPost("fdesde") && parent::vPost("sueldo") && parent::vPost("nit") && parent::vPost("dept")){
 			$dui = str_replace("-", "", parent::gPost("dui"));
 			$nit = str_replace("-", "", parent::gPost("nit"));
 			$nombre = parent::gPost("nombre");
@@ -110,7 +112,7 @@ class ClienteController extends ControllerBase
 			}
 			
 			//departamento y municipio
-			$mid = $this->dym(parent::gPost("dept"), parent::gPost("muni"));
+			$mid = $this->dym(parent::gPost("dept"));
 						
 			//crear nuevo cliente
 			$c = new Cliente();
@@ -172,9 +174,7 @@ class ClienteController extends ControllerBase
 		}
 		
 		//departamento y municipio
-		$mid = $this->dym(parent::gPost("dept"), parent::gPost("muni"));
-		$dept = parent::gPost("dept");
-		
+		$mid = $this->dym(parent::gPost("dept"));
 		
 		$c->alquila = parent::gPost("alquila");
 		$c->areaTrab = parent::gPost("area");
@@ -183,11 +183,15 @@ class ClienteController extends ControllerBase
 		$c->direccion = parent::gPost("dir");
 		$c->dui = $dui;
 		$c->estado = 1;
-		$c->fdesde = parent::gPost("fdesde");
-		$c->fexpedicion = parent::gPost("expedicion");
+		if(parent::gPost("fdesde") != "" && parent::gPost("fdesde") != null){
+			$c->fdesde = parent::gPost("fdesde");
+		}
+		if(parent::gPost("expedicion") != "" && parent::gPost("expedicion") != null){
+			$c->fexpedicion = parent::gPost("expedicion");
+		}		
 		$c->jefe = parent::gPost("jefe");
 		$c->lugarExpedicion = parent::gPost("lugar");
-		$c->municipio = parent::gPost("muni");
+		$c->municipio = $mid;
 		$c->nit = $nit;
 		$c->trabajo = parent::gPost("trabajo");
 		$c->nombre = parent::gPost("nombre");
@@ -215,7 +219,10 @@ class ClienteController extends ControllerBase
 	/**
 	 * dym recibe dept y muni
 	 */
-	public function dym($dept, $muni){
+	public function dym($dm){//, $muni){
+		$md = explode(",", $dm);
+		$muni = trim($md[0]);
+		$dept = trim($md[1]);
 		$mid = "";
 		$depts = Departamentos::find("nombre like '$dept'");
 		if(count($depts) > 0){
