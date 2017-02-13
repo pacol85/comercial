@@ -23,7 +23,7 @@ class FiadorController extends ControllerBase
 			["t", ["pagador"], "Pagador"],
 			["t", ["cargo"], "Cargo"],
 			["m", ["sueldo", 0], "Sueldo"],
-			["d", ["fdesde"], "Desde"],
+			["t", ["fdesde"], "Desde"],
 			["t", ["tofic"], "Tel&eacute;fono Oficina"],
 			["t", ["dirtrab"], "Dir. Trabajo"],
 			["t", ["dui"], "DUI"],
@@ -34,12 +34,12 @@ class FiadorController extends ControllerBase
 			["t", ["ctrabajo"], "Trabajo"],
 			["t", ["carea"], "Area de trabajo"],
 			["t", ["ccargo"], "Cargo"],
-			["d", ["cfdesde"], "Desde"],
+			["t", ["cfdesde"], "Desde"],
 			["t", ["ctofic"], "Tel&eacute;fono Oficina"],
 			["t", ["cdirtrab"], "Dir. Trabajo"],
 			["s", ["guardar"], "Guardar"]
 		];
-		$form = parent::form($campos, "fiador/guardarIni/$cid", "form1");
+		$form = parent::form($campos, "fiador/guardarIni/$cid", "form1", 2);
     	    
     	parent::view("Fiador", $form);
     }
@@ -47,6 +47,7 @@ class FiadorController extends ControllerBase
     public function guardarIniAction($cid){
     	if(parent::vPost("nombre")){
     		$dui = str_replace("-", "", parent::gPost("dui"));
+    		$nit = str_replace("-", "", parent::gPost("nit"));
     		$f = new Fiador();
     		$f->alquila = parent::gPost("alquila");
     		$f->cargo = parent::gPost("cargo");
@@ -59,7 +60,7 @@ class FiadorController extends ControllerBase
     		$f->fcreacion = parent::fechaHoy(true);
     		$f->fexpedicion = parent::gPost("fexpedicion");
     		$f->jefe = parent::gPost("jefe");
-    		$f->nit = parent::gPost("nit");
+    		$f->nit = $nit;
     		$f->nombre = parent::gPost("nombre");
     		$f->pagador = parent::gPost("pagador");
     		$f->parentesco = parent::gPost("par");

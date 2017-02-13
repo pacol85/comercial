@@ -46,12 +46,19 @@ class Proveedor extends \Phalcon\Mvc\Model
     public $tipo;
 
     /**
+     *
+     * @var string
+     */
+    public $estado;
+
+    /**
      * Initialize method for model.
      */
     public function initialize()
     {
         $this->hasMany('id', 'Cheques', 'proveedor', array('alias' => 'Cheques'));
         $this->hasMany('id', 'Contactos', 'proveedor', array('alias' => 'Contactos'));
+        $this->hasMany('id', 'Item', 'proveedor', array('alias' => 'Item'));
         $this->hasMany('id', 'OrdenCompra', 'proveedor', array('alias' => 'OrdenCompra'));
         $this->belongsTo('tipo', 'TipoProveedor', 'id', array('alias' => 'TipoProveedor'));
     }

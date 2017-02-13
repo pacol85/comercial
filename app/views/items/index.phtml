@@ -2,6 +2,11 @@
 	$(document).ready(function() {
 		$('#titems').DataTable();	
 		$('.edit').hide();	
+		var texto = $('#listProv').val();
+		listDept = texto.split(";");
+		 $("#proveedor").autocomplete({
+			    source:[listDept]
+			  });
 	} );
 
 	<?php echo $this->view->js;?>

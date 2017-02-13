@@ -20,7 +20,7 @@ class ReferenciaController extends ControllerBase
 					["t", ["area"], "Departamento"],
 					["t", ["cargo"], "Cargo"],
 					["t", ["jefe"], "Jefe"],
-					["d", ["desde"], "Desde"],
+					["t", ["desde"], "Desde"],
 					["t", ["tel"], "Tel&eacute;fono"],
 					["t", ["dir"], "Dir. Trabajo"],
 					["s", ["guardar"], "Guardar"]
@@ -39,7 +39,7 @@ class ReferenciaController extends ControllerBase
 						["t", ["trabajo"], "Trabajo"],
 						["t", ["area"], "Departamento"],
 						["t", ["cargo"], "Cargo"],
-						["d", ["desde"], "Desde"],
+						["t", ["desde"], "Desde"],
 						["t", ["telOfic"], "Tel. Oficina"],
 						["s", ["guardar"], "Guardar"]
 				];
@@ -55,7 +55,7 @@ class ReferenciaController extends ControllerBase
 					["t", ["trabajo"], "Trabajo"],
 					["t", ["area"], "Departamento"],
 					["t", ["cargo"], "Cargo"],
-					["d", ["desde"], "Desde"],
+					["t", ["desde"], "Desde"],
 					["t", ["telOfic"], "Tel. Oficina"],
 					["t", ["ref"], "Referencias"],
 					["s", ["guardar"], "Guardar"]
@@ -187,7 +187,7 @@ class ReferenciaController extends ControllerBase
     			["t", ["area"], "Departamento"],
     			["t", ["cargo"], "Cargo"],
     			["t", ["jefe"], "Jefe"],
-    			["d", ["desde"], "Desde"],
+    			["t", ["desde"], "Desde"],
     			["t", ["tel"], "Tel&eacute;fono"],
     			["t", ["dir"], "Dir. Trabajo"],
     			["s", ["guardar"], "Guardar"],
@@ -227,7 +227,7 @@ class ReferenciaController extends ControllerBase
     					["t", ["trabajo"], "Trabajo"],
     					["t", ["area"], "Departamento"],
     					["t", ["cargo"], "Cargo"],
-    					["d", ["desde"], "Desde"],
+    					["t", ["desde"], "Desde"],
     					["t", ["telOfic"], "Tel. Oficina"],
     					["s", ["guardar"], "Guardar"],
     					["h", ["tipoRef"], "2"]
@@ -265,7 +265,7 @@ class ReferenciaController extends ControllerBase
     			["t", ["trabajo"], "Trabajo"],
     			["t", ["area"], "Departamento"],
     			["t", ["cargo"], "Cargo"],
-    			["d", ["desde"], "Desde"],
+    			["t", ["desde"], "Desde"],
     			["t", ["telOfic"], "Tel. Oficina"],
     			["t", ["ref"], "Referencias"],
     			["s", ["guardar"], "Guardar"],

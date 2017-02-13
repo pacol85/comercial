@@ -58,6 +58,12 @@ class Item extends \Phalcon\Mvc\Model
     public $codigo;
 
     /**
+     *
+     * @var string
+     */
+    public $proveedor;
+
+    /**
      * Initialize method for model.
      */
     public function initialize()
@@ -66,6 +72,7 @@ class Item extends \Phalcon\Mvc\Model
         $this->hasMany('id', 'ItemXFactura', 'item', array('alias' => 'ItemXFactura'));
         $this->hasMany('id', 'ItemXSucursal', 'item', array('alias' => 'ItemXSucursal'));
         $this->hasMany('id', 'OrdenCompra', 'item', array('alias' => 'OrdenCompra'));
+        $this->belongsTo('proveedor', 'Proveedor', 'id', array('alias' => 'Proveedor'));
     }
 
     /**

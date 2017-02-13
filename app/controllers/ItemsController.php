@@ -5,8 +5,19 @@ class ItemsController extends ControllerBase
 	public function indexAction()
 	{
 		parent::limpiar();
+		
+		//proveedores en $data
+		$proveedores = Proveedor::find("estado = 1");
+		$data = "";
+		foreach ($proveedores as $p){
+			$data = $data."$p->nombre;";
+		}
+		$data = substr($data, 0, strlen($data)-1);
+		
 		$campos = [
 				["h", ["id"], ""],
+				["t", ["proveedor"], "Proveedor"],
+				["h", ["listProv"], $data],
 				["t", ["marca"], "Marca"],
 				["t", ["modelo"], "Modelo"],
 				["t", ["desc"], "Descripci&oacute;n"],
@@ -16,18 +27,22 @@ class ItemsController extends ControllerBase
 		];		
 		$form = parent::form($campos, "items/guardar", "form1");
 		
-		$head = ["C&oacute;digo", "Marca", "Modelo", "Descripci&oacute;n", "Costo", "M&iacute;nimo", "Acciones"];
+		$head = ["C&oacute;digo", "Proveedor", "Marca", "Modelo", "Descripci&oacute;n", "Costo", "M&iacute;nimo", "Acciones"];
 		$tabla = parent::thead("titems", $head);
 		$items = Item::find();
 		foreach ($items as $u){
+			//proveedor
+			$prov = Proveedor::findFirst("id = $u->proveedor");
+			
 			$tabla = $tabla.parent::tbody([
 					$u->codigo,
+					$prov->nombre,
 					$u->marca, 
 					$u->modelo, 
 					$u->descripcion, 
 					$u->valor,
 					$u->minimo,
-					parent::a(2, "cargarDatos('".$u->id."', '".$u->marca."', '".$u->modelo."', '".$u->descripcion."', '".
+					parent::a(2, "cargarDatos('".$u->id."', '".$prov->nombre."', '".$u->marca."', '".$u->modelo."', '".$u->descripcion."', '".
 							$u->valor."', '".$u->codigo."')", "Editar")." | ".
 					parent::a(1, "isuc/index/$u->id", "Inventario")." | ".
 					parent::a(1, "items/eliminar/$u->id", "Eliminar")
@@ -64,7 +79,10 @@ class ItemsController extends ControllerBase
 				$i->modelo = parent::gPost("modelo");
 				$i->valor = parent::gPost("costo");
 				$i->total = parent::porcUp($i->valor, $i->impuesto); //costo mas impuesto
-				$i->minimo = $i->total*$min; 
+				$i->minimo = parent::porcUp($i->total, $min->valor, 2);
+
+				$prov = parent::gPost("proveedor");
+				$i->proveedor = $this->provload($prov);
 				if($i->save()){
 					parent::msg("El item fue creado exitosamente", "s");
 					
@@ -137,7 +155,11 @@ class ItemsController extends ControllerBase
 					$i->modelo = parent::gPost("modelo");
 					$i->valor = parent::gPost("costo");
 					$i->total = parent::porcUp($i->valor, $i->impuesto); //costo mas impuesto
-					$i->minimo = $i->total*$min; 
+					$i->minimo = parent::porcUp($i->total, $min->valor, 2);
+					
+					$prov = parent::gPost("proveedor");
+					$i->proveedor = $this->provload($prov);
+					
 					if($i->update()){
 						parent::msg("El item fue editado exitosamente", "s");
 					}else{
@@ -152,6 +174,27 @@ class ItemsController extends ControllerBase
     		parent::msg("Ocurri&oacute; un error al cargar el Item");
     	}
     	parent::forward("items", "index");
+	}
+	
+	/**
+	 * provload
+	 */
+	public function provload($prov){
+		$proveedor = trim($prov);
+		$dept = trim($md[1]);
+		$mid = "";
+		$provs = Proveedor::find("nombre like '$prov'");
+		if(count($provs) > 0){
+			$p = $provs->getFirst();
+			return $p->id;
+		}else{
+			$pro = new Proveedor();
+			$pro->nombre = $prov;
+			$pro->documento = "Faltante";
+			$pro->save();
+			
+			return $pro->id;
+		}
 	}
 	
 }

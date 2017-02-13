@@ -700,15 +700,23 @@ class ControllerBase extends Controller {
 	/**
 	 * Función para sumar en porcentaje una cantidad 
 	 */
-	public function porcUp($num, $porc){
-		return $num*(1 + $porc/100);
+	public function porcUp($num, $porc, $reg = true){
+		if($reg){
+			return $num*(1 + $porc/100);
+		}else{
+			return $num / (1- $porc/100);
+		}		
 	}
 	
 	/**
 	 * Función para restar en porcentaje una cantidad
 	 */
-	public function porcDown($num, $porc){
-		return $num/(1 + $porc/100);
+	public function porcDown($num, $porc, $reg = true){
+		if($reg){
+			return $num/(1 + $porc/100);
+		}else{
+			return $num * (1 - $porc/100);
+		}
 	}
 	
 	/**
