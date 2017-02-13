@@ -30,11 +30,7 @@ class ClienteController extends ControllerBase
 				["t", ["dir"], "Direcci&oacute;n"],
 				["t", ["dept"], "Municipio, Departamento"],
 				["h", ["deptid"], ""],
-				["h", ["listDept"], $data],//json_encode ( $data )],
-				//["t", ["muni"], "Municipio"],
-				//["h", ["listMuni"], ""],
-				//["sdb", ["muni", $muni, ["id", "nombre"]], "Municipio", "mdiv"],
-				//["h", ["mid"], ""],
+				["h", ["listDept"], $data],
 				["t", ["cel"], "Celular"],
 				["t", ["telCasa"], "Tel&eacute;fono Casa"],
 				["sel", ["alquila", ["1" => "S&iacute;", "0" => "No"]], "Alquila"],
@@ -45,13 +41,13 @@ class ClienteController extends ControllerBase
 				["t", ["pagador"], "Pagador"],
 				["t", ["cargo"], "Cargo"],
 				["m", ["sueldo", 0], "Sueldo"],
-				["d", ["fdesde"], "Desde"],
+				["t", ["fdesde"], "Desde"],
 				["t", ["tofic"], "Tel&eacute;fono Oficina"],
 				["t", ["dirtrab"], "Dir. Trabajo"],
 				["h", ["id"], ""],
 				["s", [""], "Guardar"]	
 		];		
-		$form = parent::form($campos, "cliente/guardar", "form1");
+		$form = parent::form($campos, "cliente/guardar", "form1", 2);
 		
 		$head = ["Nombre", "DUI", "Municipio", "Alquila", "Trabajo",
 				"Sueldo", "# Tel", "Acciones"				
@@ -101,7 +97,7 @@ class ClienteController extends ControllerBase
 	
 	public function guardarAction(){
 		if(parent::vPost("nombre") && parent::vPost("dui") && parent::vPost("dir") && parent::vPost("trabajo") &&
-				parent::vPost("fdesde") && parent::vPost("sueldo") && parent::vPost("nit") && parent::vPost("dept")){
+				parent::vPost("sueldo") && parent::vPost("nit") && parent::vPost("dept")){
 			$dui = str_replace("-", "", parent::gPost("dui"));
 			$nit = str_replace("-", "", parent::gPost("nit"));
 			$nombre = parent::gPost("nombre");

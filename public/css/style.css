@@ -14,6 +14,7 @@ body {
   background: url(http://subtlepatterns.com/patterns/cream_pixels.png) repeat fixed;
   font-family: 'Open Sans', sans-serif;
   font-weight: 200;
+  font-size: 1em;
 }
 .login {
   position: relative;
@@ -168,4 +169,11 @@ img {
   width: 100px;
   right: 20px;
   top: 0px;
+}
+
+.row{
+	margin-bottom: 15px;
+}
+.form-control{
+  font-size: 1.1em;  
 }
