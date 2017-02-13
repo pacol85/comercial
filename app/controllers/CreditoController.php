@@ -29,7 +29,7 @@ class CreditoController extends ControllerBase
 		
 		$items = Item::find();
 		foreach ($items as $i){
-			$tcont = parent::porcUp($i->total, $cont->valor);
+			$tcont = parent::porcUp($i->total, $cont->valor, 2);
 			$tcred = parent::porcUp($tcont, $cred->valor);
 			
 			$table = $table . parent::tbody([
@@ -485,8 +485,12 @@ function subidaAngelAction(){
 				$cont = Parametros::findFirst("parametro like 'contado'");
 				$cred = Parametros::findFirst("parametro like 'icredito'");
 		
-				$tcont = parent::porcUp($i->total, $cont->valor);
-				$tcred = parent::porcUp($tcont, $cred->valor) * $a;
+				$tcont = parent::porcUp($i->total, $cont->valor, 2);
+				$tcred = $tcont * $a;
+				if($cuotas > 6){
+					$tcred = parent::porcUp($tcont, $cred->valor) * $a;
+				}
+				
 		
 				$monto = $monto + $tcred;
 				$prima = $prima + ($tcred/($cuotas + 1));
