@@ -36,7 +36,7 @@ class CreditoController extends ControllerBase
 				$i->codigo, 
 				$i->marca, 
 				$i->modelo, 
-				$tcred, 
+				parent::redondear($tcred), 
 				parent::elemento("cf", ["check$i->id", "$i->id", "addValor('$i->id');", "suma"], ""),
 				parent::elemento("tvcb", ["n$i->id", "1", "tbcant"], "Cant.")
 			]);
@@ -487,7 +487,7 @@ function subidaAngelAction(){
 		
 				$tcont = parent::porcUp($i->total, $cont->valor, 2);
 				$tcred = $tcont * $a;
-				if($cuotas > 6){
+				if($cuotas >= 6){
 					$tcred = parent::porcUp($tcont, $cred->valor) * $a;
 				}
 				
@@ -498,7 +498,7 @@ function subidaAngelAction(){
 			$pos = $pos + 1;
 		}
 		
-		$response = ['monto' => $monto, 'prima' => $prima];
+		$response = ['monto' => parent::redondear($monto), 'prima' => parent::redondear($prima)];
 		return $response;
 	}
 }

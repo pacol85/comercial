@@ -992,4 +992,19 @@ class ControllerBase extends Controller {
 			}
 			return $elem;
 		}
+	
+		/**
+		 * Función para redondear de .01 a .50 = .5 de .51 a .99 = 1
+		 */
+		public function redondear($num){
+			$dec = $num - intval($num);
+			if($num == intval($num)){
+				return $num;
+			}
+			if($dec <= 0.5 && $dec > 0){
+				return intval($num) + 0.5;
+			}else{
+				return ceil($num);
+			}
+		}
 }

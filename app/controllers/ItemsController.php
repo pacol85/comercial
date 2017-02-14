@@ -79,7 +79,7 @@ class ItemsController extends ControllerBase
 				$i->modelo = parent::gPost("modelo");
 				$i->valor = parent::gPost("costo");
 				$i->total = parent::porcUp($i->valor, $i->impuesto); //costo mas impuesto
-				$i->minimo = parent::porcUp($i->total, $min->valor, 2);
+				$i->minimo = parent::redondear(parent::porcUp($i->total, $min->valor, 2));
 
 				$prov = parent::gPost("proveedor");
 				$i->proveedor = $this->provload($prov);
@@ -155,7 +155,7 @@ class ItemsController extends ControllerBase
 					$i->modelo = parent::gPost("modelo");
 					$i->valor = parent::gPost("costo");
 					$i->total = parent::porcUp($i->valor, $i->impuesto); //costo mas impuesto
-					$i->minimo = parent::porcUp($i->total, $min->valor, 2);
+					$i->minimo = parent::redondear(parent::porcUp($i->total, $min->valor, 2));
 					
 					$prov = parent::gPost("proveedor");
 					$i->proveedor = $this->provload($prov);
