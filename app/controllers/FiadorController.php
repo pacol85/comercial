@@ -40,8 +40,38 @@ class FiadorController extends ControllerBase
 			["s", ["guardar"], "Guardar"]
 		];
 		$form = parent::form($campos, "fiador/guardarIni/$cid", "form1", 2);
-    	    
-    	parent::view("Fiador", $form);
+
+		$head = ["Principal", "Nombre", "Tel&eacute;fono", "Sueldo", "DUI", "NIT", "Acciones"];
+		$tabla = parent::thead("tfiadores", $head);
+		$fiadores = Fiador::find("cliente = $cid");
+		foreach ($fiadores as $f){
+			$principal = parent::a(1, "fiador/principal/$f->id", "Principal");
+			$main = "";
+			if($f->principal == 1){
+				$principal = "";
+				$main = "***";
+			}
+			
+			$tabla = $tabla.parent::tbody([
+					$main,
+					$f->nombre,
+					$f->telefono,
+					$f->sueldo,
+					$f->dui,
+					$f->nit,
+					$principal. " | " . parent::a(1, "fiador/edit/$f->id", "Editar")
+			]);
+		}
+		
+		//js
+		$fields = ["id", "nombre", "par", "dir", "tel", "alquila", "propietario", 
+				"trabajo", "area", "jefe", "pagador", "cargo", "sueldo", "fdesde", 
+				"tofic", "dirtrab", "dui", "expedido", "nit", "fexpedicion", "conyugue", 
+				"ctrabajo", "carea", "ccargo", "cfdesde", "ctofic", "cdirtrab"];
+		$otros = "";
+		//$jsBotones = ["form1", "credito/edit/$cid", "credito/cargar/$cid"];
+		
+    	parent::view("Fiador", $form, $tabla);
     }
     
     public function guardarIniAction($cid){
@@ -139,19 +169,42 @@ class FiadorController extends ControllerBase
     	parent::forward("parentesco", "index");
     }
 
-    public function editAction(){
-    	if(parent::vPost("id")){
-    		$par = Parentesco::findFirst("id = ".parent::gPost("id"));
-    		$par->parentesco = parent::gPost("parentesco");
-    		$par->desc = parent::gPost("desc");
-    		if($par->update()){
-    			parent::msg("Parentesco modificado exitosamente", "s");
-    		}else{
-    			parent::msg("", "db");
-    		}
-    	}else{
-    		parent::msg("Ocurri&oacute; un error al cargar el Parentesco");
-    	}
-    	parent::forward("parentesco", "index");
+    public function editAction($fid){
+    	$fiador = Fiador::findFirst($fid);
+    	$par = Parentesco::find();
+		
+		$campos = [
+			["t", ["nombre"], "Nombre"],
+			["h", ["id"], ""],
+			["sdb", ["par", $par, ["id", "parentesco"]], "Parentesco"],
+			["t", ["dir"], "Direcci&oacute;n"],
+			["t", ["tel"], "Tel&eacute;fono"],
+			["sel", ["alquila", ["1" => "S&iacute;", "0" => "No"]], "Alquila"],
+			["t", ["propietario"], "Propietario"],
+			["t", ["trabajo"], "Trabajo"],
+			["t", ["area"], "Area de trabajo"],
+			["t", ["jefe"], "Jefe"],
+			["t", ["pagador"], "Pagador"],
+			["t", ["cargo"], "Cargo"],
+			["m", ["sueldo", 0], "Sueldo"],
+			["t", ["fdesde"], "Desde"],
+			["t", ["tofic"], "Tel&eacute;fono Oficina"],
+			["t", ["dirtrab"], "Dir. Trabajo"],
+			["t", ["dui"], "DUI"],
+			["t", ["expedido"], "Lugar Expedici&oacute;n"],
+			["t", ["nit"], "NIT"],
+			["d", ["fexpedicion"], "Fecha Expedici&oacute;n"],
+			["t", ["conyugue"], "Nombre C&oacute;nyugue"],
+			["t", ["ctrabajo"], "Trabajo"],
+			["t", ["carea"], "Area de trabajo"],
+			["t", ["ccargo"], "Cargo"],
+			["t", ["cfdesde"], "Desde"],
+			["t", ["ctofic"], "Tel&eacute;fono Oficina"],
+			["t", ["cdirtrab"], "Dir. Trabajo"],
+			["s", ["guardar"], "Guardar"]
+		];
+		$form = parent::form($campos, "fiador/guardarIni/$cid", "form1", 2);
     }
+    
+    
 }

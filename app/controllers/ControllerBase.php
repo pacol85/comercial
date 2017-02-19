@@ -40,7 +40,7 @@ class ControllerBase extends Controller {
 		$this->response->setContent ( json_encode ( $data ) );
 		return $this->response;
 	}
-	public function elemento($t, $n, $l, $r = 0) {
+	public function elemento($t, $n, $l, $r = 0, $v = "") {
 		$dId = "";
 		if (! is_numeric ( $r )) {
 			$dId = "id='$r'";
